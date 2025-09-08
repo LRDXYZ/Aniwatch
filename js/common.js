@@ -191,8 +191,8 @@ function deepClone(obj) {
 }
 
 
-function apiFetch(url,option = {}) {
-    const defaultHeaders = option.headers || {};
+function apiFetch(url, options = {}) {
+    const defaultHeaders = options.headers || {};
     const config = {
         credentials: 'include',
         ...options,
@@ -201,7 +201,7 @@ function apiFetch(url,option = {}) {
             ...defaultHeaders
         }
     };
-    return fetch(url,config);
+    return fetch(url, config);
 }
 // 导出所有函数
 window.CommonUtils = {

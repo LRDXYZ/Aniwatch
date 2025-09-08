@@ -1,4 +1,4 @@
-// js/page/register.js - 注册功能完善版
+// js/page/register.js - 使用本地存储的版本
 document.addEventListener('DOMContentLoaded', function () {
     // 获取DOM元素
     const registerForm = document.getElementById('register-form');
@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const validation = validateRegisterForm(formData);
 
         if (validation.isValid) {
-            // 注册过程（调用后端API，使用基于Cookie的会话）
+            // 注册过程（使用本地存储模拟）
             try {
-                await simulateRegistration(formData);
+                await performRegistration(formData);
             } catch (error) {
                 console.error('注册失败:', error);
                 showFormErrors({ general: error.message || '注册失败，请重试' });
@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     passwordInput.addEventListener('input', CommonUtils.debounce(function () {
         validateField('reg-password', passwordInput.value.trim(), 'password');
         validatePasswordConfirmation();
+        updatePasswordStrength(passwordInput.value);
     }, 300));
 
     confirmInput.addEventListener('input', CommonUtils.debounce(function () {
@@ -64,8 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
             errors.username = '用户名不能为空';
         } else if (!CommonUtils.validateUsername(formData.username)) {
             errors.username = '用户名必须是2-20位字母、数字或下划线';
-        } else if (isUsernameTaken(formData.username)) {
-            errors.username = '用户名已被使用';
         }
 
         // 手机号验证
@@ -73,8 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
             errors.phone = '手机号不能为空';
         } else if (!CommonUtils.validatePhone(formData.phone)) {
             errors.phone = '请输入有效的手机号';
-        } else if (isPhoneTaken(formData.phone)) {
-            errors.phone = '手机号已被注册';
         }
 
         // 密码验证
@@ -97,44 +94,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // 检查用户名是否已被使用
-    async function isUsernameTaken(username) {
-        try {
-            const response = await fetch('/api/users/check-username', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username: username })
-            });
-
-            const result = await response.json();
-            return result.exists;
-        } catch (error) {
-            console.error('检查用户名失败:', error);
-            return false;
-        }
-    }
-
-    // 检查手机号是否已被注册
-    async function isPhoneTaken(phone) {
-        try {
-            const response = await fetch('/api/users/check-phone', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ phone: phone })
-            });
-
-            const result = await response.json();
-            return result.exists;
-        } catch (error) {
-            console.error('检查手机号失败:', error);
-            return false;
-        }
-    }
-
     // 单个字段验证
     function validateField(fieldId, value, fieldType) {
         const errorElement = document.getElementById(`${fieldId}-error`);
@@ -149,8 +108,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     errorMessage = '用户名不能为空';
                 } else if (!CommonUtils.validateUsername(value)) {
                     errorMessage = '用户名必须是2-20位字母、数字或下划线';
-                } else if (isUsernameTaken(value)) {
-                    errorMessage = '用户名已被使用';
                 }
                 break;
 
@@ -159,8 +116,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     errorMessage = '手机号不能为空';
                 } else if (!CommonUtils.validatePhone(value)) {
                     errorMessage = '请输入有效的手机号';
-                } else if (isPhoneTaken(value)) {
-                    errorMessage = '手机号已被注册';
                 }
                 break;
 
@@ -185,10 +140,16 @@ document.addEventListener('DOMContentLoaded', function () {
         if (errorMessage) {
             errorElement.textContent = errorMessage;
             errorElement.style.display = 'block';
-            DOMUtils.addClass(document.getElementById(fieldId).parentNode, 'error');
+            const inputElement = document.getElementById(fieldId);
+            if (inputElement) {
+                DOMUtils.addClass(inputElement.parentNode, 'error');
+            }
         } else {
             errorElement.style.display = 'none';
-            DOMUtils.removeClass(document.getElementById(fieldId).parentNode, 'error');
+            const inputElement = document.getElementById(fieldId);
+            if (inputElement) {
+                DOMUtils.removeClass(inputElement.parentNode, 'error');
+            }
         }
     }
 
@@ -207,7 +168,45 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // 显示表单错误
+    // 更新密码强度指示器
+    function updatePasswordStrength(password) {
+        const strengthIndicator = document.querySelector('.password-strength');
+        const strengthText = document.querySelector('.strength-text');
+        
+        if (!strengthIndicator || !strengthText) return;
+
+        if (password.length === 0) {
+            strengthIndicator.className = 'password-strength';
+            strengthText.textContent = '';
+            return;
+        }
+
+        let strength = 0;
+        if (password.length >= 6) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        let strengthClass = '';
+        let strengthTextValue = '';
+
+        if (strength <= 2) {
+            strengthClass = 'strength-weak';
+            strengthTextValue = '弱';
+        } else if (strength <= 3) {
+            strengthClass = 'strength-medium';
+            strengthTextValue = '中';
+        } else {
+            strengthClass = 'strength-strong';
+            strengthTextValue = '强';
+        }
+
+        strengthIndicator.className = `password-strength ${strengthClass}`;
+        strengthText.textContent = strengthTextValue;
+    }
+
+    // 显示表单错误 - 改进版本
     function showFormErrors(errors) {
         // 先清除所有错误显示
         clearAllErrors();
@@ -230,37 +229,61 @@ document.addEventListener('DOMContentLoaded', function () {
                     fieldId = 'reg-confirm';
                     break;
                 default:
-                    fieldId = field;
+                    fieldId = 'general';
             }
 
             errorElement = document.getElementById(`${fieldId}-error`);
-            const inputElement = document.getElementById(fieldId);
-
-            if (errorElement && inputElement) {
+            
+            if (errorElement) {
                 errorElement.textContent = message;
                 errorElement.style.display = 'block';
-                DOMUtils.addClass(inputElement.parentNode, 'error');
-
-                // 添加动画效果
-                DOMUtils.addClass(inputElement, 'shake');
-                setTimeout(() => {
-                    DOMUtils.removeClass(inputElement, 'shake');
-                }, 500);
+                
+                // 为通用错误添加特殊处理
+                if (field === 'general') {
+                    errorElement.className = 'error-message text-danger mt-2 text-center';
+                }
+            }
+            
+            // 为输入字段添加错误样式
+            if (field !== 'general') {
+                const inputElement = document.getElementById(fieldId);
+                if (inputElement) {
+                    DOMUtils.addClass(inputElement.parentNode, 'error');
+                    
+                    // 添加动画效果
+                    DOMUtils.addClass(inputElement, 'shake');
+                    setTimeout(() => {
+                        DOMUtils.removeClass(inputElement, 'shake');
+                    }, 500);
+                }
             }
         }
 
-        // 聚焦到第一个错误字段
+        // 聚焦到第一个错误字段（添加安全检查）
         const firstErrorField = Object.keys(errors)[0];
-        if (firstErrorField) {
+        if (firstErrorField && firstErrorField !== 'general') {
             let fieldId;
             switch (firstErrorField) {
-                case 'username': fieldId = 'reg-username'; break;
-                case 'phone': fieldId = 'reg-phone'; break;
-                case 'password': fieldId = 'reg-password'; break;
-                case 'confirm': fieldId = 'reg-confirm'; break;
-                default: fieldId = firstErrorField;
+                case 'username': 
+                    fieldId = 'reg-username'; 
+                    break;
+                case 'phone': 
+                    fieldId = 'reg-phone'; 
+                    break;
+                case 'password': 
+                    fieldId = 'reg-password'; 
+                    break;
+                case 'confirm': 
+                    fieldId = 'reg-confirm'; 
+                    break;
+                default: 
+                    fieldId = firstErrorField;
             }
-            document.getElementById(fieldId).focus();
+            
+            const element = document.getElementById(fieldId);
+            if (element) {
+                element.focus();
+            }
         }
     }
 
@@ -269,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const errorElements = document.querySelectorAll('.error-message');
         errorElements.forEach(element => {
             element.style.display = 'none';
+            element.textContent = '';
         });
 
         const formGroups = document.querySelectorAll('.form-group');
@@ -277,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    //注册过程（调用后端API，使用基于Cookie的会话）
-    async function simulateRegistration(formData) {
+    // 注册过程（使用本地存储模拟后端）
+    async function performRegistration(formData) {
         // 显示加载状态
         const submitButton = registerForm.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
@@ -286,23 +310,31 @@ document.addEventListener('DOMContentLoaded', function () {
         submitButton.disabled = true;
 
         try {
-            // 发送注册请求到后端（明文密码传输，需要HTTPS；服务端负责hash）
-            const response = await CommonUtils.apiFetch('/api/users/register', {
-                body: JSON.stringify({
-                    userame: formData.username,
-                    phone: formData.phone,
-                    password: formData.password
-                })
-            });
+            // 检查用户名或手机号是否已存在
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const existingUser = users.find(user => 
+                user.username === formData.username || user.phone === formData.phone
+            );
 
-            if (response.ok) {
-               handleRegisterSuccess();
-            } else {
-                if (response.status === 409) {
-                    throw new Error('用户名或手机号已被使用');
-                }
-                throw new Error('注册失败');
+            if (existingUser) {
+                throw new Error('用户名或手机号已被使用');
             }
+
+            // 创建新用户对象
+            const newUser = {
+                id: Date.now().toString(),
+                username: formData.username,
+                phone: formData.phone,
+                password: formData.password, // 实际项目中应该加密存储
+                createdAt: new Date().toISOString()
+            };
+
+            // 保存到本地存储
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // 显示成功消息
+            handleRegisterSuccess();
 
         } catch (error) {
             console.error('注册失败:', error);
@@ -317,7 +349,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleRegisterSuccess() {
         // 显示成功消息
         showSuccessMessage('注册成功！正在跳转到登录页...');
-        //    跳转到登录页
+
+        // 跳转到登录页
         setTimeout(() => {
             window.location.href = 'login.html';
         }, 2000);
@@ -350,26 +383,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // 初始化页面
     function init() {
         console.log('注册页初始化完成');
-
-        // 添加错误消息容器
-        addErrorContainers();
-    }
-
-    // 添加错误消息容器
-    function addErrorContainers() {
-        const fields = ['reg-username', 'reg-phone', 'reg-password', 'reg-confirm'];
-
-        fields.forEach(field => {
-            const inputElement = document.getElementById(field);
-            if (inputElement && !document.getElementById(`${field}-error`)) {
-                const errorElement = DOMUtils.createElement('div', {
-                    id: `${field}-error`,
-                    className: 'error-message'
-                });
-
-                inputElement.parentNode.appendChild(errorElement);
-            }
-        });
     }
 
     // 执行初始化

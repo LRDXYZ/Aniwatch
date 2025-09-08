@@ -333,15 +333,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         return icons[type] || 'bi-info-circle-fill';
     }
 
-    //    检查用户登录状态
-    async function isUserLoggedIn() {
-        try {
-            const resp = await CommonUtils.apiFetch('/api/auth/session', { method: 'GET' });
-            return resp.ok;
-        } catch (e) {
-            return false;
-        }
+    // 检查用户登录状态（使用本地存储）
+async function isUserLoggedIn() {
+    try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        return currentUser && currentUser.loggedIn;
+    } catch (e) {
+        return false;
     }
+}
 
     // 查看动漫详情
     window.viewAnimeDetail = async function (malId) {

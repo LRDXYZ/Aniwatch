@@ -1,4 +1,4 @@
-// js/page/login.js
+// js/page/login.js - 使用本地存储的版本
 document.addEventListener('DOMContentLoaded', function() {
     // 获取DOM元素
     const loginForm = document.getElementById('login-form');
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (validation.isValid) {
             // 发送登录请求到后端
             try {
-                await simulateLogin(formData);
+                await performLogin(formData);
             } catch (error) {
                 console.error('登录失败:', error);
                 showFormErrors({ general: '登录失败，请重试' });
@@ -155,8 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 登录过程（调用后端API，使用基于Cookie的会话）
-    async function simulateLogin(formData) {
+    // 登录过程（使用本地存储模拟）
+    async function performLogin(formData) {
         // 显示加载状态
         const submitButton = loginForm.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
@@ -164,28 +164,25 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         
         try {
-            // 发送登录请求到后端（Cookie会话）
-            const response = await CommonUtils.apiFetch('/api/users/login', {
-                method: 'POST',
-                body: JSON.stringify({
-                    username: formData.username,
-                    password: formData.password
-                })
-            });
+            // 从本地存储获取用户数据
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
             
-            if (response.ok) {
-            //    登陆成功处理
-            handleLoginSuccess(formData.username, formData.remember);
+            // 查找匹配的用户（通过用户名或手机号）
+            const user = users.find(u => 
+                (u.username === formData.username || u.phone === formData.username) 
+                && u.password === formData.password
+            );
+            
+            if (user) {
+                // 登录成功处理
+                handleLoginSuccess(user, formData.remember);
             } else {
-                if(response.status === 401) {
-                    throw new Error('用户名或密码错误');
-                }
-                throw new Error('登录失败');
+                throw new Error('用户名或密码错误');
             }
             
         } catch (error) {
             console.error('登录失败:', error);
-            showFormErrors({ general: error.message || '登陆失败，请重试' });
+            showFormErrors({ general: error.message || '登录失败，请重试' });
         } finally {
             // 恢复按钮状态
             submitButton.textContent = originalText;
@@ -194,10 +191,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 处理登录成功
-    function handleLoginSuccess(username,rememberMe) {
+    function handleLoginSuccess(user, rememberMe) {
+        // 保存用户登录状态到本地存储
+        const loginData = {
+            userId: user.id,
+            username: user.username,
+            loggedIn: true,
+            loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(loginData));
+        
         // 记住我功能（仅保存用户名用于回填，不保存会话或token） 
         if (rememberMe) {
-          commonUtils.setStorage('rememberedUser', {username});
+            CommonUtils.setStorage('rememberedUser', { username: user.username });
         } else {
             CommonUtils.removeStorage('rememberedUser');
         }
