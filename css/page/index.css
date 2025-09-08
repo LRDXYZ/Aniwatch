@@ -176,6 +176,9 @@
     box-shadow: var(--shadow);
     z-index: 1000;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .music-control-btn:hover {
@@ -185,19 +188,27 @@
 
 .music-control-btn.playing {
     animation: pulse 2s infinite;
+    background: var(--secondary-color);
+}
+
+.music-control-btn.paused {
+    background: #6c757d;
 }
 
 @keyframes pulse {
     0% {
         transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
     }
 
-    50% {
-        transform: scale(1.1);
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
     }
 
     100% {
         transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
     }
 }
 

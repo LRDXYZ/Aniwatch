@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 limit: 20,
                 order_by: 'popularity'
             };
-            
+
             // 不显示加载状态，后台预加载
             await AnimeAPI.getAnimeList(params);
         } catch (error) {
@@ -577,6 +577,69 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    // 音乐播放控制功能
+    function initMusicPlayer() {
+        const musicControl = document.getElementById('music-control');
+        const backgroundMusic = document.getElementById('background-music');
+
+        if (!musicControl || !backgroundMusic) {
+            console.warn('音乐播放器元素未找到');
+            return;
+        }
+
+        // 页面加载时尝试自动播放
+        window.addEventListener('load', function () {
+            // 在移动端可能需要用户交互才能播放
+            backgroundMusic.volume = 0.3; // 设置音量为30%
+        });
+
+        // 控制按钮点击事件
+        musicControl.addEventListener('click', function () {
+            if (backgroundMusic.paused) {
+                // 播放音乐
+                backgroundMusic.play()
+                    .then(() => {
+                        musicControl.classList.add('playing');
+                        musicControl.classList.remove('paused');
+                        musicControl.innerHTML = '<i class="bi bi-pause"></i>';
+                    })
+                    .catch(error => {
+                        console.log('自动播放被阻止，需要用户交互:', error);
+                        showToast('点击页面任意位置后可播放音乐', 'info');
+                    });
+            } else {
+                // 暂停音乐
+                backgroundMusic.pause();
+                musicControl.classList.add('paused');
+                musicControl.classList.remove('playing');
+                musicControl.innerHTML = '<i class="bi bi-play"></i>';
+            }
+        });
+
+        // 监听音乐播放状态
+        backgroundMusic.addEventListener('play', function () {
+            musicControl.classList.add('playing');
+            musicControl.classList.remove('paused');
+            musicControl.innerHTML = '<i class="bi bi-pause"></i>';
+        });
+
+        backgroundMusic.addEventListener('pause', function () {
+            musicControl.classList.add('paused');
+            musicControl.classList.remove('playing');
+            musicControl.innerHTML = '<i class="bi bi-play"></i>';
+        });
+
+        // 页面可见性变化时的处理
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden && !backgroundMusic.paused) {
+                backgroundMusic.pause();
+                musicControl.classList.add('paused');
+                musicControl.classList.remove('playing');
+                musicControl.innerHTML = '<i class="bi bi-play"></i>';
+            }
+        });
+    }
+
     // 初始化页面
     async function init() {
         try {
@@ -596,6 +659,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // 渲染动漫列表
             await renderAnimeList(1, false);
+            // 初始化音乐播放器
+            initMusicPlayer();
 
             // 显示欢迎消息
             const firstVisit = !localStorage.getItem('firstVisit');
