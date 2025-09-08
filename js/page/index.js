@@ -333,16 +333,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         return icons[type] || 'bi-info-circle-fill';
     }
 
-    // 检查用户登录状态
-    function isUserLoggedIn() {
-        const token = localStorage.getItem('authToken');
-        const session = localStorage.getItem('userSession');
-        return !!(token && session);
-    }
-
-    // 获取认证token
-    function getAuthToken() {
-        return localStorage.getItem('authToken');
+    // 检查用户登录状态（通过调用后端会话校验端点，或按需延迟到请求时处理401）
+    async function isUserLoggedIn() {
+        try {
+            const resp = await CommonUtils.apiFetch('/api/auth/session', { method: 'GET' });
+            return resp.ok;
+        } catch (e) {
+            return false;
+        }
     }
 
     // 查看动漫详情
@@ -362,7 +360,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // 切换收藏
     window.toggleFavorite = async function(malId, button) {
-        if (!isUserLoggedIn()) {
+        if (!(await isUserLoggedIn())) {
             showToast('请先登录以收藏动漫', 'warning');
             setTimeout(() => {
                 window.location.href = 'login.html';
@@ -377,13 +375,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 '/api/user/favorites';
             const method = isFavorite ? 'DELETE' : 'POST';
 
-            const response = await fetch(endpoint, {
+            const response = await CommonUtils.apiFetch(endpoint, {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getAuthToken()}`
-                },
-                ...(!isFavorite && { body: JSON.stringify({ mal_id: malId }) })
+                ...(isFavorite ? {} : { body: JSON.stringify({ mal_id: malId }) })
             });
 
             if (response.ok) {
@@ -400,6 +394,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                     isFavorite ? 'info' : 'success'
                 );
             } else {
+                if (response.status === 401) {
+                    showToast('会话已过期，请重新登录', 'warning');
+                    setTimeout(() => window.location.href = 'login.html', 1200);
+                    return;
+                }
                 throw new Error('操作失败');
             }
         } catch (error) {
@@ -522,14 +521,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // 更新收藏按钮状态
     async function updateFavoriteButtons() {
-        if (!isUserLoggedIn()) return;
+        if (!(await isUserLoggedIn())) return;
         
         try {
-            const response = await fetch('/api/user/favorites', {
-                headers: {
-                    'Authorization': `Bearer ${getAuthToken()}`
-                }
-            });
+            const response = await CommonUtils.apiFetch('/api/user/favorites', { method: 'GET' });
             
             if (response.ok) {
                 const favorites = await response.json();
@@ -548,6 +543,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                         icon.classList.remove('bi-heart');
                     }
                 });
+            } else if (response.status === 401) {
+                // 未登录时忽略更新
+                return;
             }
         } catch (error) {
             console.error('获取收藏列表失败:', error);
