@@ -1,4 +1,4 @@
-// 注册页交互逻辑
+// js/page/register.js - 注册功能完善版
 document.addEventListener('DOMContentLoaded', function() {
     // 获取DOM元素
     const registerForm = document.getElementById('register-form');
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmInput = document.getElementById('reg-confirm');
     
     // 表单提交事件
-    registerForm.addEventListener('submit', function(e) {
+    registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         // 获取表单数据
@@ -23,8 +23,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const validation = validateRegisterForm(formData);
         
         if (validation.isValid) {
-            // 模拟注册过程
-            simulateRegistration(formData);
+            // 模拟注册过程（实际应调用后端API）
+            try {
+                await simulateRegistration(formData);
+            } catch (error) {
+                console.error('注册失败:', error);
+                showFormErrors({ general: '注册失败，请重试' });
+            }
         } else {
             // 显示错误信息
             showFormErrors(validation.errors);
@@ -93,15 +98,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 检查用户名是否已被使用
-    function isUsernameTaken(username) {
-        const users = CommonUtils.getStorage('users') || [];
-        return users.some(user => user.username === username);
+    async function isUsernameTaken(username) {
+        try {
+            const response = await fetch('/api/users/check-username', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: username })
+            });
+            
+            const result = await response.json();
+            return result.exists;
+        } catch (error) {
+            console.error('检查用户名失败:', error);
+            return false;
+        }
     }
     
     // 检查手机号是否已被注册
-    function isPhoneTaken(phone) {
-        const users = CommonUtils.getStorage('users') || [];
-        return users.some(user => user.phone === phone);
+    async function isPhoneTaken(phone) {
+        try {
+            const response = await fetch('/api/users/check-phone', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone: phone })
+            });
+            
+            const result = await response.json();
+            return result.exists;
+        } catch (error) {
+            console.error('检查手机号失败:', error);
+            return false;
+        }
     }
     
     // 单个字段验证
@@ -246,50 +277,95 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 模拟注册过程
-    function simulateRegistration(formData) {
+    // 模拟注册过程（实际应调用后端API）
+    async function simulateRegistration(formData) {
         // 显示加载状态
         const submitButton = registerForm.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
         submitButton.textContent = '注册中...';
         submitButton.disabled = true;
         
-        // 模拟API请求延迟
-        setTimeout(() => {
-            // 创建新用户
+        try {
+            // 创建新用户对象
             const newUser = {
-                id: CommonUtils.generateId(),
                 username: formData.username,
                 phone: formData.phone,
-                password: formData.password, // 注意：实际应用中应该加密存储
-                createdAt: new Date().toISOString(),
-                lastLogin: null
+                password_hash: await hashPassword(formData.password), // 使用哈希函数
+                email: formData.email || null,
+                avatar_url: null,
+                created_at: new Date().toISOString(),
+                last_login: null,
+                status: 'active'
             };
             
-            // 保存用户数据
-            const users = CommonUtils.getStorage('users') || [];
-            users.push(newUser);
-            CommonUtils.setStorage('users', users);
+            // 发送注册请求到后端
+            const response = await fetch('/api/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newUser)
+            });
             
-            // 自动登录
-            const sessionData = {
-                userId: newUser.id,
-                username: newUser.username,
-                loginTime: new Date().toISOString(),
-                isLoggedIn: true
-            };
+            if (response.ok) {
+                const result = await response.json();
+                
+                // 登录成功处理
+                handleLoginSuccess(result.user, formData.remember);
+            } else {
+                throw new Error('注册失败');
+            }
             
-            CommonUtils.setStorage('currentSession', sessionData);
-            
-            // 显示成功消息
-            showSuccessMessage('注册成功！正在自动登录...');
-            
-            // 跳转到首页
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
-            
-        }, 1500);
+        } catch (error) {
+            console.error('注册失败:', error);
+            showFormErrors({ general: '注册失败，请重试' });
+        } finally {
+            // 恢复按钮状态
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+        }
+    }
+    
+    // 哈希密码函数
+    async function hashPassword(password) {
+        // 这里应该使用安全的哈希算法，如bcrypt
+        // 为了演示，这里使用简单的加密
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+    
+    // 处理登录成功
+    function handleLoginSuccess(user, rememberMe) {
+        // 保存用户会话
+        const sessionData = {
+            userId: user.id,
+            username: user.username,
+            loginTime: new Date().toISOString(),
+            isLoggedIn: true
+        };
+        
+        CommonUtils.setStorage('currentSession', sessionData);
+        
+        // 记住我功能
+        if (rememberMe) {
+            CommonUtils.setStorage('rememberedUser', {
+                username: user.username
+            });
+        } else {
+            CommonUtils.removeStorage('rememberedUser');
+        }
+        
+        // 显示成功消息
+        showSuccessMessage('注册成功！正在自动登录...');
+        
+        // 跳转到首页
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
     }
     
     // 显示成功消息

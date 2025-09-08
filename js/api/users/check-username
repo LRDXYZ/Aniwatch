@@ -1,0 +1,29 @@
+// js/api/users/check-username.js
+const User = require('../../models/User');
+
+app.post('/api/users/check-username', async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    console.log('检查用户名:', username); // 添加日志
+    
+    if (!username) {
+      return res.status(400).json({
+        exists: false
+      });
+    }
+    
+    const user = await User.findOne({ where: { username } });
+    console.log('查询结果:', user); // 添加日志
+    
+    res.json({
+      exists: !!user
+    });
+    
+  } catch (error) {
+    console.error('检查用户名失败:', error);
+    res.status(500).json({
+      exists: false
+    });
+  }
+});

@@ -1,4 +1,4 @@
-// 登录页交互逻辑
+// js/page/login.js
 document.addEventListener('DOMContentLoaded', function() {
     // 获取DOM元素
     const loginForm = document.getElementById('login-form');
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkRememberedLogin();
     
     // 表单提交事件
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         // 获取表单数据
@@ -24,8 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const validation = validateLoginForm(formData);
         
         if (validation.isValid) {
-            // 模拟登录过程
-            simulateLogin(formData);
+            // 发送登录请求到后端
+            try {
+                await simulateLogin(formData);
+            } catch (error) {
+                console.error('登录失败:', error);
+                showFormErrors({ general: '登录失败，请重试' });
+            }
         } else {
             // 显示错误信息
             showFormErrors(validation.errors);
@@ -151,35 +156,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 模拟登录过程
-    function simulateLogin(formData) {
+    async function simulateLogin(formData) {
         // 显示加载状态
         const submitButton = loginForm.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
         submitButton.textContent = '登录中...';
         submitButton.disabled = true;
         
-        // 模拟API请求延迟
-        setTimeout(() => {
-            // 检查用户是否存在
-            const users = CommonUtils.getStorage('users') || [];
-            const user = users.find(u => 
-                (u.username === formData.username || u.phone === formData.username) && 
-                u.password === formData.password
-            );
+        try {
+            // 发送登录请求到后端
+            const response = await fetch('/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: formData.username,
+                    password: formData.password
+                })
+            });
             
-            if (user) {
-                // 登录成功
-                handleLoginSuccess(user, formData.remember);
+            if (response.ok) {
+                const result = await response.json();
+                
+                // 登录成功处理
+                handleLoginSuccess(result.user, formData.remember);
             } else {
-                // 登录失败
-                handleLoginFailure();
+                throw new Error('登录失败');
             }
             
+        } catch (error) {
+            console.error('登录失败:', error);
+            showFormErrors({ general: '用户名或密码错误，请重试' });
+        } finally {
             // 恢复按钮状态
             submitButton.textContent = originalText;
             submitButton.disabled = false;
-            
-        }, 1500);
+        }
     }
     
     // 处理登录成功
@@ -203,6 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
             CommonUtils.removeStorage('rememberedUser');
         }
         
+        // 更新用户状态
+        updateUserStatus(user.id, 'active');
+        
         // 显示成功消息
         showSuccessMessage('登录成功！正在跳转...');
         
@@ -212,17 +228,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
     
-    // 处理登录失败
-    function handleLoginFailure() {
-        showFormErrors({
-            general: '用户名或密码错误，请重试'
-        });
-        
-        // 添加震动效果
-        DOMUtils.addClass(loginForm, 'shake');
-        setTimeout(() => {
-            DOMUtils.removeClass(loginForm, 'shake');
-        }, 500);
+    // 更新用户状态
+    async function updateUserStatus(userId, status) {
+        try {
+            await fetch(`/api/users/${userId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: status })
+            });
+        } catch (error) {
+            console.error('更新用户状态失败:', error);
+        }
     }
     
     // 显示成功消息
@@ -262,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         console.log('登录页初始化完成');
         
-        // 添加错误消息容器（如果HTML中没有）
+        // 添加错误消息容器
         addErrorContainers();
     }
     
