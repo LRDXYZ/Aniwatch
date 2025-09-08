@@ -190,6 +190,19 @@ function deepClone(obj) {
     return cloned;
 }
 
+
+function apiFetch(url,option = {}) {
+    const defaultHeaders = option.headers || {};
+    const config = {
+        credentials: 'include',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...defaultHeaders
+        }
+    };
+    return fetch(url,config);
+}
 // 导出所有函数
 window.CommonUtils = {
     // 存储相关
@@ -213,92 +226,9 @@ window.CommonUtils = {
     debounce,
     throttle,
     generateId,
-    deepClone
+    deepClone,
+    apiFetch
 };
-/**
- * 用户会话管理
- */
-
-// 获取当前用户会话
-function getCurrentSession() {
-    return CommonUtils.getStorage('currentSession');
-}
-
-// 检查用户是否登录
-function isUserLoggedIn() {
-    const session = getCurrentSession();
-    return session && session.isLoggedIn;
-}
-
-// 获取当前用户信息
-function getCurrentUser() {
-    const session = getCurrentSession();
-    if (!session) return null;
-
-    const users = CommonUtils.getStorage('users') || [];
-    return users.find(user => user.id === session.userId);
-}
-
-// 用户登出
-function logout() {
-    CommonUtils.removeStorage('currentSession');
-    // 跳转到登录页
-    window.location.href = 'login.html';
-}
-
-// 更新用户信息
-function updateUserProfile(userId, updates) {
-    const users = CommonUtils.getStorage('users') || [];
-    const userIndex = users.findIndex(user => user.id === userId);
-
-    if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...updates };
-        CommonUtils.setStorage('users', users);
-        return true;
-    }
-
-    return false;
-}
-
-// 导出用户管理函数
-window.UserManager = {
-    getCurrentSession,
-    isUserLoggedIn,
-    getCurrentUser,
-    logout,
-    updateUserProfile
-};
-
-// 初始化默认用户数据（开发用）
-function initializeDefaultUsers() {
-    const existingUsers = CommonUtils.getStorage('users');
-    if (!existingUsers || existingUsers.length === 0) {
-        const defaultUsers = [
-            {
-                id: 'default-user-1',
-                username: 'testuser',
-                phone: '13800138000',
-                password: '123456', // 演示用简单密码
-                createdAt: new Date().toISOString(),
-                lastLogin: null
-            },
-            {
-                id: 'default-user-2',
-                username: 'animefan',
-                phone: '13900139000',
-                password: '654321',
-                createdAt: new Date().toISOString(),
-                lastLogin: null
-            }
-        ];
-        CommonUtils.setStorage('users', defaultUsers);
-    }
-}
-
-// 页面加载时初始化默认用户
-document.addEventListener('DOMContentLoaded', function () {
-    initializeDefaultUsers();
-});
 
 
 

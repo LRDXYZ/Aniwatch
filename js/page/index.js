@@ -1,5 +1,5 @@
 // js/page/index.js - 完整代码
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     // 初始化变量
     let currentPage = 1;
     let isLoading = false;
@@ -58,9 +58,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 渲染动漫列表
     async function renderAnimeList(page = 1, append = false) {
         if (isLoading) return;
-        
+
         showLoading();
-        
+
         if (!append) {
             currentPage = 1;
             if (animeGrid) animeGrid.innerHTML = '';
@@ -126,11 +126,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     function createAnimeCard(anime) {
         const col = document.createElement('div');
         col.className = 'col-md-6 col-lg-4 col-xl-3 mb-4';
-        
-        const imageUrl = anime.images?.jpg?.large_image_url || 
-                         anime.images?.jpg?.image_url || 
-                         'assets/images/poster/default.jpg';
-        
+
+        const imageUrl = anime.images?.jpg?.large_image_url ||
+            anime.images?.jpg?.image_url ||
+            'assets/images/poster/default.jpg';
+
         const score = anime.score ? anime.score.toFixed(1) : 'N/A';
         const episodes = anime.episodes || '?';
         const status = getStatusText(anime.status);
@@ -199,12 +199,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // 添加悬停效果
         const card = col.querySelector('.anime-card');
-        card.addEventListener('mouseenter', function() {
+        card.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-5px)';
             this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
         });
 
-        card.addEventListener('mouseleave', function() {
+        card.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(0)';
             this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
         });
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 渲染分类标签
     function renderGenres(genres) {
         if (!genres || genres.length === 0) return '';
-        
+
         return genres.slice(0, 3).map(genre => `
             <span class="badge bg-secondary me-1 mb-1 small">${genre.name}</span>
         `).join('');
@@ -255,23 +255,23 @@ document.addEventListener('DOMContentLoaded', async function() {
     function getActiveFilters() {
         const filters = {};
         const activeFilter = document.querySelector('.filter-btn.active');
-        
+
         if (activeFilter) {
             const filterType = activeFilter.dataset.filter;
             const filterValue = activeFilter.dataset.value;
-            
+
             if (filterType && filterValue) {
                 filters[filterType] = filterValue;
             }
         }
-        
+
         return filters;
     }
 
     // 更新页面标题
     function updatePageTitle(params) {
         let title = 'AniWatch - 动漫观看网站';
-        
+
         if (params.q) {
             title = `搜索: ${params.q} - ${title}`;
         } else if (params.type) {
@@ -279,14 +279,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         } else if (params.status) {
             title = `${getStatusText(params.status)}动漫 - ${title}`;
         }
-        
+
         document.title = title;
     }
 
     // 预加载图片
     function preloadImage(url) {
         if (!url || url === 'assets/images/poster/default.jpg') return;
-        
+
         const img = new Image();
         img.src = url;
     }
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 移除现有的toast
         const existingToasts = document.querySelectorAll('.toast');
         existingToasts.forEach(toast => toast.remove());
-        
+
         const toast = document.createElement('div');
         toast.className = `toast align-items-center text-white bg-${type} border-0`;
         toast.innerHTML = `
@@ -308,12 +308,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         `;
-        
+
         document.body.appendChild(toast);
-        
+
         const bsToast = new bootstrap.Toast(toast);
         bsToast.show();
-        
+
         // 自动移除
         setTimeout(() => {
             if (toast.parentNode) {
@@ -333,27 +333,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         return icons[type] || 'bi-info-circle-fill';
     }
 
-    // 检查用户登录状态
-    function isUserLoggedIn() {
-        const token = localStorage.getItem('authToken');
-        const session = localStorage.getItem('userSession');
-        return !!(token && session);
-    }
-
-    // 获取认证token
-    function getAuthToken() {
-        return localStorage.getItem('authToken');
+    //    检查用户登录状态
+    async function isUserLoggedIn() {
+        try {
+            const resp = await CommonUtils.apiFetch('/api/auth/session', { method: 'GET' });
+            return resp.ok;
+        } catch (e) {
+            return false;
+        }
     }
 
     // 查看动漫详情
-    window.viewAnimeDetail = async function(malId) {
+    window.viewAnimeDetail = async function (malId) {
         try {
             showToast('正在加载动漫详情...', 'info');
-            
+
             // 存储ID到sessionStorage
             sessionStorage.setItem('currentAnimeId', malId);
             window.location.href = `detail.html?mal_id=${malId}`;
-            
+
         } catch (error) {
             console.error('跳转失败:', error);
             showToast('跳转失败，请重试', 'error');
@@ -361,8 +359,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     };
 
     // 切换收藏
-    window.toggleFavorite = async function(malId, button) {
-        if (!isUserLoggedIn()) {
+    window.toggleFavorite = async function (malId, button) {
+        if (!(await isUserLoggedIn())) {
             showToast('请先登录以收藏动漫', 'warning');
             setTimeout(() => {
                 window.location.href = 'login.html';
@@ -372,34 +370,35 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         try {
             const isFavorite = button.classList.contains('active');
-            const endpoint = isFavorite ? 
-                `/api/user/favorites/${malId}` : 
+            const endpoint = isFavorite ?
+                `/api/user/favorites/${malId}` :
                 '/api/user/favorites';
             const method = isFavorite ? 'DELETE' : 'POST';
 
-            const response = await fetch(endpoint, {
+            const response = await CommonUtils.apiFetch(endpoint, {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getAuthToken()}`
-                },
-                ...(!isFavorite && { body: JSON.stringify({ mal_id: malId }) })
+                ...animeGrid(isFavorite ? {} : { body: JSON.stringify({ mal_id: malid }) })
             });
 
             if (response.ok) {
                 button.classList.toggle('active');
                 button.classList.toggle('btn-light');
                 button.classList.toggle('btn-danger');
-                
+
                 const icon = button.querySelector('i');
                 icon.classList.toggle('bi-heart');
                 icon.classList.toggle('bi-heart-fill');
-                
+
                 showToast(
-                    isFavorite ? '已取消收藏' : '已添加到收藏', 
+                    isFavorite ? '已取消收藏' : '已添加到收藏',
                     isFavorite ? 'info' : 'success'
                 );
             } else {
+                if (response.status === 401) {
+                    showToast('会话已过期，请重新登录', 'warning');
+                    setTimeout(() => window.location.href = 'login.html', 1200);
+                    return;
+                }
                 throw new Error('操作失败');
             }
         } catch (error) {
@@ -409,14 +408,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     };
 
     // 加载更多
-    window.loadMore = async function() {
+    window.loadMore = async function () {
         if (isLoading || !hasMore) return;
-        
+
         await renderAnimeList(currentPage + 1, true);
     };
 
     // 回到顶部
-    window.scrollToTop = function() {
+    window.scrollToTop = function () {
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
@@ -427,10 +426,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     function initEventListeners() {
         // 搜索表单
         if (searchForm) {
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const query = searchInput.value.trim();
-                
+
                 if (query) {
                     sessionStorage.setItem('searchQuery', query);
                     window.location.href = `search.html?q=${encodeURIComponent(query)}`;
@@ -440,7 +439,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // 筛选按钮
         filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 // 移除其他active类
                 filterButtons.forEach(btn => btn.classList.remove('active'));
                 // 添加active类到当前按钮
@@ -452,7 +451,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // 排序选择
         if (sortSelect) {
-            sortSelect.addEventListener('change', function() {
+            sortSelect.addEventListener('change', function () {
                 renderAnimeList(1, false);
             });
         }
@@ -465,9 +464,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 回到顶部按钮
         if (backToTopBtn) {
             backToTopBtn.addEventListener('click', scrollToTop);
-            
+
             // 滚动显示/隐藏回到顶部按钮
-            window.addEventListener('scroll', function() {
+            window.addEventListener('scroll', function () {
                 if (window.scrollY > 300) {
                     backToTopBtn.style.display = 'block';
                 } else {
@@ -477,20 +476,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // 无限滚动
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             if (isLoading || !hasMore) return;
-            
+
             const scrollHeight = document.documentElement.scrollHeight;
             const scrollTop = document.documentElement.scrollTop;
             const clientHeight = document.documentElement.clientHeight;
-            
+
             if (scrollTop + clientHeight >= scrollHeight - 100) {
                 loadMore();
             }
         });
 
         // 键盘快捷键
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             // ESC键清除搜索
             if (e.key === 'Escape' && searchInput) {
                 searchInput.value = '';
@@ -506,40 +505,36 @@ document.addEventListener('DOMContentLoaded', async function() {
     function initUI() {
         // 初始化收藏按钮状态
         updateFavoriteButtons();
-        
+
         // 初始化滚动位置
         const scrollPosition = sessionStorage.getItem('scrollPosition');
         if (scrollPosition) {
             window.scrollTo(0, parseInt(scrollPosition));
             sessionStorage.removeItem('scrollPosition');
         }
-        
+
         // 保存滚动位置 beforeunload
-        window.addEventListener('beforeunload', function() {
+        window.addEventListener('beforeunload', function () {
             sessionStorage.setItem('scrollPosition', window.scrollY);
         });
     }
 
     // 更新收藏按钮状态
     async function updateFavoriteButtons() {
-        if (!isUserLoggedIn()) return;
-        
+        if (!(await isUserLoggedIn())) return;
+
         try {
-            const response = await fetch('/api/user/favorites', {
-                headers: {
-                    'Authorization': `Bearer ${getAuthToken()}`
-                }
-            });
-            
+            const response = await CommonUtil.apiFetch('/api/user/favorites', { method: 'GET' });
+
             if (response.ok) {
                 const favorites = await response.json();
                 const favoriteIds = favorites.map(fav => fav.mal_id);
-                
+
                 // 更新收藏按钮状态
                 document.querySelectorAll('.favorite-btn').forEach(button => {
                     const card = button.closest('.anime-card');
                     const malId = parseInt(card.dataset.malId);
-                    
+
                     if (favoriteIds.includes(malId)) {
                         button.classList.add('active', 'btn-danger');
                         button.classList.remove('btn-light');
@@ -548,6 +543,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                         icon.classList.remove('bi-heart');
                     }
                 });
+            } else if (response.status === 401) {
+                // 未登录状态，跳过
+                return;
             }
         } catch (error) {
             console.error('获取收藏列表失败:', error);
@@ -561,23 +559,23 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (!window.AnimeAPI) {
                 throw new Error('API服务未初始化');
             }
-            
+
             // 初始化事件监听
             initEventListeners();
-            
+
             // 初始化UI
             initUI();
-            
+
             // 渲染动漫列表
             await renderAnimeList(1, false);
-            
+
             // 显示欢迎消息
             const firstVisit = !localStorage.getItem('firstVisit');
             if (firstVisit) {
                 showToast('欢迎来到 AniWatch！探索精彩动漫世界', 'info');
                 localStorage.setItem('firstVisit', 'true');
             }
-            
+
         } catch (error) {
             console.error('页面初始化失败:', error);
             showError('页面初始化失败，请刷新页面重试');
@@ -603,7 +601,7 @@ function debounce(func, wait) {
 
 function throttle(func, limit) {
     let inThrottle;
-    return function(...args) {
+    return function (...args) {
         if (!inThrottle) {
             func.apply(this, args);
             inThrottle = true;
@@ -613,9 +611,9 @@ function throttle(func, limit) {
 }
 
 // 图片懒加载
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const lazyImages = document.querySelectorAll('img[loading="lazy"]');
-    
+
     if ('IntersectionObserver' in window) {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
