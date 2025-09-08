@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 模拟登录过程
+    // 登录过程（调用后端API，使用基于Cookie的会话）
     async function simulateLogin(formData) {
         // 显示加载状态
         const submitButton = loginForm.querySelector('button[type="submit"]');
@@ -164,12 +164,9 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         
         try {
-            // 发送登录请求到后端
-            const response = await fetch('/api/users/login', {
+            // 发送登录请求到后端（Cookie 会话）
+            const response = await CommonUtils.apiFetch('/api/users/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({
                     username: formData.username,
                     password: formData.password
@@ -177,17 +174,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (response.ok) {
-                const result = await response.json();
-                
-                // 登录成功处理
-                handleLoginSuccess(result.user, formData.remember);
+                // 登录成功，服务端通过Set-Cookie建立会话
+                handleLoginSuccess(formData.username, formData.remember);
             } else {
+                if (response.status === 401) {
+                    throw new Error('用户名或密码错误');
+                }
                 throw new Error('登录失败');
             }
             
         } catch (error) {
             console.error('登录失败:', error);
-            showFormErrors({ general: '用户名或密码错误，请重试' });
+            showFormErrors({ general: error.message || '登录失败，请重试' });
         } finally {
             // 恢复按钮状态
             submitButton.textContent = originalText;
@@ -196,29 +194,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 处理登录成功
-    function handleLoginSuccess(user, rememberMe) {
-        // 保存用户会话
-        const sessionData = {
-            userId: user.id,
-            username: user.username,
-            loginTime: new Date().toISOString(),
-            isLoggedIn: true
-        };
-        
-        CommonUtils.setStorage('currentSession', sessionData);
-        
-        // 记住我功能
+    function handleLoginSuccess(username, rememberMe) {
+        // 记住我功能（仅保存用户名用于回填，不保存会话或token）
         if (rememberMe) {
-            CommonUtils.setStorage('rememberedUser', {
-                username: user.username
-            });
+            CommonUtils.setStorage('rememberedUser', { username });
         } else {
             CommonUtils.removeStorage('rememberedUser');
         }
-        
-        // 更新用户状态
-        updateUserStatus(user.id, 'active');
-        
+
         // 显示成功消息
         showSuccessMessage('登录成功！正在跳转...');
         
@@ -226,21 +209,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 2000);
-    }
-    
-    // 更新用户状态
-    async function updateUserStatus(userId, status) {
-        try {
-            await fetch(`/api/users/${userId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: status })
-            });
-        } catch (error) {
-            console.error('更新用户状态失败:', error);
-        }
     }
     
     // 显示成功消息

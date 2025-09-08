@@ -23,12 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const validation = validateRegisterForm(formData);
         
         if (validation.isValid) {
-            // 模拟注册过程（实际应调用后端API）
+            // 注册过程（调用后端API，使用基于Cookie的会话）
             try {
                 await simulateRegistration(formData);
             } catch (error) {
                 console.error('注册失败:', error);
-                showFormErrors({ general: '注册失败，请重试' });
+                showFormErrors({ general: error.message || '注册失败，请重试' });
             }
         } else {
             // 显示错误信息
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 模拟注册过程（实际应调用后端API）
+    // 注册过程（调用后端API，使用基于Cookie的会话）
     async function simulateRegistration(formData) {
         // 显示加载状态
         const submitButton = registerForm.querySelector('button[type="submit"]');
@@ -286,85 +286,44 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         
         try {
-            // 创建新用户对象
-            const newUser = {
-                username: formData.username,
-                phone: formData.phone,
-                password_hash: await hashPassword(formData.password), // 使用哈希函数
-                email: formData.email || null,
-                avatar_url: null,
-                created_at: new Date().toISOString(),
-                last_login: null,
-                status: 'active'
-            };
-            
-            // 发送注册请求到后端
-            const response = await fetch('/api/users/register', {
+            // 发送注册请求到后端（明文密码传输，需HTTPS；服务端负责hash）
+            const response = await CommonUtils.apiFetch('/api/users/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newUser)
+                body: JSON.stringify({
+                    username: formData.username,
+                    phone: formData.phone,
+                    password: formData.password
+                })
             });
             
             if (response.ok) {
-                const result = await response.json();
-                
-                // 登录成功处理
-                handleLoginSuccess(result.user, formData.remember);
+                // 可选：部分系统注册即登录（服务端Set-Cookie）
+                handleRegisterSuccess();
             } else {
+                if (response.status === 409) {
+                    throw new Error('用户名或手机号已存在');
+                }
                 throw new Error('注册失败');
             }
             
         } catch (error) {
             console.error('注册失败:', error);
-            showFormErrors({ general: '注册失败，请重试' });
+            showFormErrors({ general: error.message || '注册失败，请重试' });
         } finally {
             // 恢复按钮状态
             submitButton.textContent = originalText;
             submitButton.disabled = false;
         }
     }
-    
-    // 哈希密码函数
-    async function hashPassword(password) {
-        // 这里应该使用安全的哈希算法，如bcrypt
-        // 为了演示，这里使用简单的加密
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
-    
-    // 处理登录成功
-    function handleLoginSuccess(user, rememberMe) {
-        // 保存用户会话
-        const sessionData = {
-            userId: user.id,
-            username: user.username,
-            loginTime: new Date().toISOString(),
-            isLoggedIn: true
-        };
-        
-        CommonUtils.setStorage('currentSession', sessionData);
-        
-        // 记住我功能
-        if (rememberMe) {
-            CommonUtils.setStorage('rememberedUser', {
-                username: user.username
-            });
-        } else {
-            CommonUtils.removeStorage('rememberedUser');
-        }
-        
+
+    // 注册成功后的处理
+    function handleRegisterSuccess() {
         // 显示成功消息
-        showSuccessMessage('注册成功！正在自动登录...');
-        
-        // 跳转到首页
+        showSuccessMessage('注册成功！正在跳转到登录页...');
+
+        // 跳转到登录页（如服务端已自动登录，可跳首页）
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }, 2000);
     }
     
