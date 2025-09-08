@@ -1,0 +1,108 @@
+/* 关于页 */
+.about-article {
+    padding: 3rem 0;
+}
+
+.article-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.article-header h2 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.article-header p {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+.about-content {
+    margin-bottom: 3rem;
+}
+
+.about-content h3 {
+    color: var(--text-color);
+    margin: 2rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.about-content p {
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.about-content ul {
+    color: var(--text-light);
+    margin-left: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.about-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* Details 折叠面板 */
+details {
+    background: var(--bg-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-color);
+    padding: 0.5rem;
+}
+
+details[open] summary {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+details ul {
+    margin-left: 1.5rem;
+}
+
+/* 联系信息 */
+.contact-info {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.contact-info h3 {
+    color: white;
+    margin-bottom: 1.5rem;
+    border-bottom: none;
+}
+
+.contact-info p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+/* 响应式关于页 */
+@media (max-width: 768px) {
+    .about-article {
+        padding: 2rem 0;
+    }
+
+    .article-header {
+        margin-bottom: 2rem;
+    }
+
+    .about-content ul {
+        margin-left: 1rem;
+    }
+}

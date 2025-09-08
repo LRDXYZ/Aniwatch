@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - AniWatch</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/page/login.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="bi bi-play-btn-fill me-2"></i>AniWatch
+            </a>
+        </div>
+    </nav>
+
+    <main class="main">
+        <section class="login-section py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-5">
+                        <div class="card shadow-lg">
+                            <div class="card-body p-5">
+                                <h2 class="text-center mb-4 fw-bold">
+                                    <i class="bi bi-person-plus-fill me-2"></i>用户注册
+                                </h2>
+                                <form id="register-form">
+                                    <div class="mb-3">
+                                        <label for="reg-username" class="form-label">用户名</label>
+                                        <input type="text" class="form-control form-control-lg" id="reg-username" name="username" required placeholder="请输入用户名">
+                                        <div id="username-error" class="form-text text-danger"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg-phone" class="form-label">手机号</label>
+                                        <input type="tel" class="form-control form-control-lg" id="reg-phone" name="phone" required placeholder="请输入手机号" pattern="[0-9]{11}">
+                                        <div id="phone-error" class="form-text text-danger"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg-password" class="form-label">密码</label>
+                                        <input type="password" class="form-control form-control-lg" id="reg-password" name="password" required placeholder="请输入密码（至少6位）" minlength="6">
+                                        <div id="password-error" class="form-text text-danger"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg-confirm" class="form-label">确认密码</label>
+                                        <input type="password" class="form-control form-control-lg" id="reg-confirm" name="confirm" required placeholder="请再次输入密码">
+                                        <div id="confirm-error" class="form-text text-danger"></div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                                        <i class="bi bi-person-plus me-2"></i>注册
+                                    </button>
+                                    <div class="text-center">
+                                        <p class="mb-0">已有账号？
+                                            <a href="login.html" class="text-decoration-none">立即登录</a>
+                                        </p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer py-4 bg-dark text-light">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/page/register.js"></script>
+</body>
+</html>

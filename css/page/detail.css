@@ -1,0 +1,397 @@
+/* 详情页头部 */
+.detail-header {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    align-items: start;
+}
+
+.detail-header figure {
+    margin: 0;
+}
+
+.detail-header img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.detail-header figcaption {
+    text-align: center;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.detail-info h2 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.description {
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.meta-info {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.meta-info span {
+    color: var(--text-light);
+}
+
+.meta-info span span {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+/* 视频区域 */
+.video-section {
+    margin-bottom: 3rem;
+}
+
+.video-section h3 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.video-section video {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+/* 剧集列表 */
+.episodes {
+    margin-bottom: 3rem;
+}
+
+.episodes h3 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.episode-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.episode-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.episode-item:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* 评论区 */
+.comments {
+    margin-bottom: 3rem;
+}
+
+.comments h3 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.comment-form {
+    margin-bottom: 2rem;
+}
+
+.comment-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.comment-item {
+    background: var(--bg-dark);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-author {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.comment-time {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.comment-content {
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* 响应式详情页 */
+@media (max-width: 900px) {
+    .detail-header {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .detail-header img {
+        height: 300px;
+    }
+
+    .meta-info {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .episode-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .episode-list {
+        grid-template-columns: 1fr;
+    }
+
+    .comment-item {
+        padding: 1rem;
+    }
+}
+
+/* 评分图表样式 */
+.rating-canvas {
+    display: block;
+    margin: 1rem 0;
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+}
+
+/* 自定义视频控制栏 */
+.custom-video-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 0 0 8px 8px;
+    margin-top: -4px;
+}
+
+.play-pause-btn,
+.mute-btn,
+.fullscreen-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.play-pause-btn:hover,
+.mute-btn:hover,
+.fullscreen-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.progress-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.video-progress {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+}
+
+.progress-slider {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: #555;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: none;
+}
+
+.time-display {
+    color: white;
+    font-size: 0.9rem;
+    min-width: 80px;
+    text-align: center;
+}
+
+.volume-slider {
+    width: 60px;
+    height: 4px;
+    border-radius: 2px;
+    background: #555;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+/* 绘图板样式 */
+.drawing-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: var(--bg-dark);
+    border-radius: 12px;
+}
+
+.drawing-section h3 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.drawing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.drawing-canvas {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: white;
+    cursor: crosshair;
+    box-shadow: var(--shadow);
+}
+
+.drawing-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+/* 音频播放器样式 */
+.audio-player {
+    margin: 2rem 0;
+    padding: 1rem;
+    background: var(--bg-dark);
+    border-radius: 8px;
+}
+
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.audio-title {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .custom-video-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .progress-container {
+        order: 3;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .drawing-canvas {
+        width: 100%;
+        height: 300px;
+    }
+
+    .drawing-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .drawing-controls .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .rating-canvas {
+        width: 80px;
+        height: 80px;
+    }
+
+    .time-display {
+        display: none;
+    }
+
+    .volume-slider {
+        width: 40px;
+    }
+}

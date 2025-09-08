@@ -1,0 +1,288 @@
+// 登录页交互逻辑
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取DOM元素
+    const loginForm = document.getElementById('login-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const rememberCheckbox = document.getElementById('remember');
+    
+    // 检查是否有保存的登录信息
+    checkRememberedLogin();
+    
+    // 表单提交事件
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // 获取表单数据
+        const formData = {
+            username: usernameInput.value.trim(),
+            password: passwordInput.value.trim(),
+            remember: rememberCheckbox.checked
+        };
+        
+        // 验证表单
+        const validation = validateLoginForm(formData);
+        
+        if (validation.isValid) {
+            // 模拟登录过程
+            simulateLogin(formData);
+        } else {
+            // 显示错误信息
+            showFormErrors(validation.errors);
+        }
+    });
+    
+    // 实时验证
+    usernameInput.addEventListener('input', CommonUtils.debounce(function() {
+        validateField('username', usernameInput.value.trim());
+    }, 300));
+    
+    passwordInput.addEventListener('input', CommonUtils.debounce(function() {
+        validateField('password', passwordInput.value.trim());
+    }, 300));
+    
+    // 验证登录表单
+    function validateLoginForm(formData) {
+        const errors = {};
+        
+        // 用户名验证
+        if (!formData.username) {
+            errors.username = '用户名或手机号不能为空';
+        } else if (!isValidUsernameOrPhone(formData.username)) {
+            errors.username = '请输入有效的用户名或手机号';
+        }
+        
+        // 密码验证
+        if (!formData.password) {
+            errors.password = '密码不能为空';
+        } else if (!CommonUtils.validatePassword(formData.password)) {
+            errors.password = '密码长度至少6位';
+        }
+        
+        return {
+            isValid: Object.keys(errors).length === 0,
+            errors: errors
+        };
+    }
+    
+    // 验证用户名或手机号
+    function isValidUsernameOrPhone(value) {
+        return CommonUtils.validateUsername(value) || CommonUtils.validatePhone(value);
+    }
+    
+    // 单个字段验证
+    function validateField(fieldName, value) {
+        const errorElement = document.getElementById(`${fieldName}-error`);
+        
+        if (!errorElement) return;
+        
+        let errorMessage = '';
+        
+        switch (fieldName) {
+            case 'username':
+                if (!value) {
+                    errorMessage = '用户名或手机号不能为空';
+                } else if (!isValidUsernameOrPhone(value)) {
+                    errorMessage = '请输入有效的用户名或手机号';
+                }
+                break;
+                
+            case 'password':
+                if (!value) {
+                    errorMessage = '密码不能为空';
+                } else if (!CommonUtils.validatePassword(value)) {
+                    errorMessage = '密码长度至少6位';
+                }
+                break;
+        }
+        
+        // 更新错误显示
+        if (errorMessage) {
+            errorElement.textContent = errorMessage;
+            errorElement.style.display = 'block';
+            DOMUtils.addClass(loginForm.querySelector(`#${fieldName}`).parentNode, 'error');
+        } else {
+            errorElement.style.display = 'none';
+            DOMUtils.removeClass(loginForm.querySelector(`#${fieldName}`).parentNode, 'error');
+        }
+    }
+    
+    // 显示表单错误
+    function showFormErrors(errors) {
+        // 先清除所有错误显示
+        clearAllErrors();
+        
+        // 显示新的错误
+        for (const [field, message] of Object.entries(errors)) {
+            const errorElement = document.getElementById(`${field}-error`);
+            const inputElement = document.getElementById(field);
+            
+            if (errorElement && inputElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                DOMUtils.addClass(inputElement.parentNode, 'error');
+                
+                // 添加动画效果
+                DOMUtils.addClass(inputElement, 'shake');
+                setTimeout(() => {
+                    DOMUtils.removeClass(inputElement, 'shake');
+                }, 500);
+            }
+        }
+        
+        // 聚焦到第一个错误字段
+        const firstErrorField = Object.keys(errors)[0];
+        if (firstErrorField) {
+            document.getElementById(firstErrorField).focus();
+        }
+    }
+    
+    // 清除所有错误显示
+    function clearAllErrors() {
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(element => {
+            element.style.display = 'none';
+        });
+        
+        const formGroups = document.querySelectorAll('.form-group');
+        formGroups.forEach(group => {
+            DOMUtils.removeClass(group, 'error');
+        });
+    }
+    
+    // 模拟登录过程
+    function simulateLogin(formData) {
+        // 显示加载状态
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = '登录中...';
+        submitButton.disabled = true;
+        
+        // 模拟API请求延迟
+        setTimeout(() => {
+            // 检查用户是否存在
+            const users = CommonUtils.getStorage('users') || [];
+            const user = users.find(u => 
+                (u.username === formData.username || u.phone === formData.username) && 
+                u.password === formData.password
+            );
+            
+            if (user) {
+                // 登录成功
+                handleLoginSuccess(user, formData.remember);
+            } else {
+                // 登录失败
+                handleLoginFailure();
+            }
+            
+            // 恢复按钮状态
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            
+        }, 1500);
+    }
+    
+    // 处理登录成功
+    function handleLoginSuccess(user, rememberMe) {
+        // 保存用户会话
+        const sessionData = {
+            userId: user.id,
+            username: user.username,
+            loginTime: new Date().toISOString(),
+            isLoggedIn: true
+        };
+        
+        CommonUtils.setStorage('currentSession', sessionData);
+        
+        // 记住我功能
+        if (rememberMe) {
+            CommonUtils.setStorage('rememberedUser', {
+                username: user.username
+            });
+        } else {
+            CommonUtils.removeStorage('rememberedUser');
+        }
+        
+        // 显示成功消息
+        showSuccessMessage('登录成功！正在跳转...');
+        
+        // 跳转到首页
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+    }
+    
+    // 处理登录失败
+    function handleLoginFailure() {
+        showFormErrors({
+            general: '用户名或密码错误，请重试'
+        });
+        
+        // 添加震动效果
+        DOMUtils.addClass(loginForm, 'shake');
+        setTimeout(() => {
+            DOMUtils.removeClass(loginForm, 'shake');
+        }, 500);
+    }
+    
+    // 显示成功消息
+    function showSuccessMessage(message) {
+        // 移除现有成功消息
+        const existingSuccess = document.querySelector('.success-message');
+        if (existingSuccess) {
+            existingSuccess.remove();
+        }
+        
+        // 创建成功消息元素
+        const successElement = DOMUtils.createElement('div', {
+            className: 'success-message',
+            textContent: message
+        });
+        
+        loginForm.insertBefore(successElement, loginForm.firstChild);
+        
+        // 3秒后自动消失
+        setTimeout(() => {
+            if (successElement.parentNode) {
+                successElement.remove();
+            }
+        }, 3000);
+    }
+    
+    // 检查记住的登录信息
+    function checkRememberedLogin() {
+        const rememberedUser = CommonUtils.getStorage('rememberedUser');
+        if (rememberedUser && rememberedUser.username) {
+            usernameInput.value = rememberedUser.username;
+            rememberCheckbox.checked = true;
+        }
+    }
+    
+    // 初始化页面
+    function init() {
+        console.log('登录页初始化完成');
+        
+        // 添加错误消息容器（如果HTML中没有）
+        addErrorContainers();
+    }
+    
+    // 添加错误消息容器
+    function addErrorContainers() {
+        const fields = ['username', 'password', 'general'];
+        
+        fields.forEach(field => {
+            const inputElement = document.getElementById(field);
+            if (inputElement && !document.getElementById(`${field}-error`)) {
+                const errorElement = DOMUtils.createElement('div', {
+                    id: `${field}-error`,
+                    className: 'error-message'
+                });
+                
+                inputElement.parentNode.appendChild(errorElement);
+            }
+        });
+    }
+    
+    // 执行初始化
+    init();
+});

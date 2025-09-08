@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动漫详情 - AniWatch</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/page/detail.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">AniWatch</h1>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="list.html">动漫列表</a></li>
+                    <li><a href="detail.html" class="active">热门推荐</a></li>
+                    <li><a href="login.html">登录</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- 动漫详情区域 -->
+        <article class="anime-detail">
+            <div class="container">
+                <div class="detail-header">
+                    <figure>
+                        <img src="" alt="动漫封面" id="anime-cover">
+                        <figcaption>动漫封面图</figcaption>
+                    </figure>
+                    <div class="detail-info">
+                        <h2 id="anime-title">动漫标题</h2>
+                        <div class="rating" id="rating-chart">
+                            <!-- Canvas 评分图表 -->
+                        </div>
+                        <p class="description" id="anime-description">动漫描述信息...</p>
+                        <div class="meta-info">
+                            <span>类型: <span id="anime-type"></span></span>
+                            <span>集数: <span id="anime-episodes"></span></span>
+                            <span>状态: <span id="anime-status"></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 视频播放区域 -->
+                <section class="video-section">
+                    <h3>预告片</h3>
+                    <video controls>
+                        <source src="" type="video/mp4">
+                        <source src="" type="video/webm">
+                        您的浏览器不支持视频播放。
+                    </video>
+                </section>
+
+                <!-- 章节列表 -->
+                <section class="episodes">
+                    <h3>剧集列表</h3>
+                    <div class="episode-list">
+                        <!-- 动态渲染剧集 -->
+                    </div>
+                </section>
+
+                <!-- 评论区 -->
+                <section class="comments">
+                    <h3>用户评论</h3>
+                    <div class="comment-form">
+                        <textarea placeholder="留下你的评论..." id="comment-input"></textarea>
+                        <button id="submit-comment">提交评论</button>
+                    </div>
+                    <div class="comment-list">
+                        <!-- 动态渲染评论 -->
+                    </div>
+                </section>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/page/detail.js"></script>
+</body>
+</html>
