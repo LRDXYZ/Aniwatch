@@ -200,3 +200,27 @@
         transform: scale(1);
     }
 }
+
+/* 优化动漫卡片渲染性能 */
+.anime-card {
+    will-change: transform, box-shadow;
+}
+
+/* 使用硬件加速优化动画 */
+.anime-card:hover {
+    will-change: auto;
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 优化图片加载 */
+.card-img-top {
+    content-visibility: auto;
+    contain-intrinsic-size: 1fr;
+}
+
+/* 优化网格布局渲染 */
+.anime-grid {
+    contain: layout style;
+}

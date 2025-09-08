@@ -1,3 +1,4 @@
+// js/api/anime-service.js
 /**
  * 统一的动漫API服务
  */
@@ -5,13 +6,15 @@ class AnimeAPIService {
     constructor() {
         this.providers = {
             jikan: window.JikanAPI
+            // 移除bilibili提供者
         };
         this.currentProvider = 'jikan';
     }
 
     // 设置API提供商
     setProvider(provider) {
-        if (this.providers[provider]) {
+        // 只允许使用jikan提供者
+        if (provider === 'jikan' && this.providers[provider]) {
             this.currentProvider = provider;
         }
     }
@@ -19,6 +22,7 @@ class AnimeAPIService {
     // 获取动漫列表
     async getAnimeList(params = {}) {
         try {
+            // 只使用jikan API
             const data = await this.providers[this.currentProvider].getAnimeList(params);
             return this.formatAnimeList(data);
         } catch (error) {
@@ -30,6 +34,7 @@ class AnimeAPIService {
     // 搜索动漫
     async searchAnime(query, filters = {}) {
         try {
+            // 只使用jikan API
             const data = await this.providers[this.currentProvider].searchAnime(query, filters);
             return this.formatAnimeList(data);
         } catch (error) {
@@ -39,9 +44,10 @@ class AnimeAPIService {
     }
 
     // 获取动漫详情
-    async getAnimeDetail(malId) {
+    async getAnimeDetail(id) {
         try {
-            const data = await this.providers[this.currentProvider].getAnimeById(malId);
+            // 只使用jikan API
+            const data = await this.providers[this.currentProvider].getAnimeById(id);
             return this.formatAnimeDetail(data);
         } catch (error) {
             console.error('获取动漫详情失败:', error);
@@ -50,9 +56,10 @@ class AnimeAPIService {
     }
 
     // 获取剧集列表
-    async getEpisodes(malId, params = {}) {
+    async getEpisodes(animeId, params = {}) {
         try {
-            const data = await this.providers[this.currentProvider].getAnimeEpisodes(malId, params);
+            // 只使用jikan API
+            const data = await this.providers[this.currentProvider].getAnimeEpisodes(animeId, params);
             return this.formatEpisodes(data);
         } catch (error) {
             console.error('获取剧集失败:', error);
@@ -60,7 +67,7 @@ class AnimeAPIService {
         }
     }
 
-    // 格式化动漫列表
+    // 格式化动漫列表 (Jikan)
     formatAnimeList(data) {
         if (data.data && Array.isArray(data.data)) {
             return {
@@ -71,9 +78,10 @@ class AnimeAPIService {
         return { anime: [], pagination: null };
     }
 
-    // 格式化单个动漫项目
+    // 格式化单个动漫项目 (Jikan)
     formatAnimeItem(item) {
         return {
+            id: item.mal_id,
             mal_id: item.mal_id,
             title: item.title,
             title_english: item.title_english,
@@ -96,7 +104,7 @@ class AnimeAPIService {
         };
     }
 
-    // 格式化动漫详情
+    // 格式化动漫详情 (Jikan)
     formatAnimeDetail(data) {
         if (data.data) {
             return this.formatAnimeItem(data.data);
@@ -104,10 +112,11 @@ class AnimeAPIService {
         return null;
     }
 
-    // 格式化剧集列表
+    // 格式化剧集列表 (Jikan)
     formatEpisodes(data) {
         if (data.data && Array.isArray(data.data)) {
             return data.data.map(episode => ({
+                id: episode.mal_id,
                 mal_id: episode.mal_id,
                 url: episode.url,
                 title: episode.title,

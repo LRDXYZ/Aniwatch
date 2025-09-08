@@ -5,7 +5,7 @@ class JikanService {
     constructor() {
         this.baseURL = 'https://api.jikan.moe/v4';
         this.cache = new Map();
-        this.cacheDuration = 5 * 60 * 1000; // 5分钟缓存
+        this.cacheDuration = 10 * 60 * 1000; // 增加缓存时间到10分钟
     }
 
     // 带缓存的请求
@@ -18,8 +18,10 @@ class JikanService {
         }
 
         try {
-            // Jikan API 有速率限制，需要延迟
-            await this.delay(1000);
+            // 减少延迟时间，仅在首次请求时延迟
+            if (this.cache.size === 0) {
+                await this.delay(500); // 减少延迟到500ms
+            }
 
             const response = await fetch(`${this.baseURL}${endpoint}`);
 
@@ -44,7 +46,7 @@ class JikanService {
 
     // 获取动漫列表
     async getAnimeList(params = {}) {
-        const { page = 1, limit = 24, type, status, rating, order_by = 'popularity' } = params;
+        const { page = 1, limit = 20, type, status, rating, order_by = 'popularity' } = params;
         const queryParams = new URLSearchParams({
             page: page,
             limit: limit,
@@ -60,7 +62,7 @@ class JikanService {
 
     // 搜索动漫
     async searchAnime(query, filters = {}) {
-        const { page = 1, limit = 24 } = filters;
+        const { page = 1, limit = 20 } = filters;
         const queryParams = new URLSearchParams({
             q: query,
             page: page,
@@ -85,7 +87,7 @@ class JikanService {
 
     // 获取热门动漫
     async getTopAnime(params = {}) {
-        const { page = 1, limit = 25, type = 'tv' } = params;
+        const { page = 1, limit = 20, type = 'tv' } = params;
         const queryParams = new URLSearchParams({
             page: page,
             limit: limit,

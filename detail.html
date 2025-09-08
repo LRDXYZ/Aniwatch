@@ -1,5 +1,7 @@
+<!-- detail.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +14,7 @@
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/page/detail.css">
 </head>
+
 <body>
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
@@ -19,11 +22,11 @@
             <a class="navbar-brand fw-bold" href="index.html">
                 <i class="bi bi-play-btn-fill me-2"></i>AniWatch
             </a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -52,7 +55,7 @@
                         </a>
                     </li>
                 </ul>
-                
+
                 <form class="d-flex ms-3">
                     <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search">
                     <button class="btn btn-outline-light" type="submit">
@@ -83,36 +86,73 @@
                             <span>集数: <span id="anime-episodes"></span></span>
                             <span>状态: <span id="anime-status"></span></span>
                         </div>
+                        <!-- 添加跳转到B站播放的按钮 -->
+                        <div class="bilibili-link mt-3">
+                            <button id="bilibili-play-btn" class="btn btn-danger btn-lg" style="display: none;">
+                                <i class="bi bi-play-btn-fill me-1"></i>在B站观看
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 视频播放区域 -->
-                <section class="video-section">
-                    <h3>视频播放</h3>
-                    <div class="video-container">
-                        <video id="anime-video" controls>
-                            您的浏览器不支持视频播放。
-                        </video>
-                        <div class="custom-video-controls">
-                            <button class="play-pause-btn" id="play-pause-btn">
-                                <i class="bi bi-play-fill"></i>
-                            </button>
-                            <button class="mute-btn" id="mute-btn">
-                                <i class="bi bi-volume-up"></i>
-                            </button>
-                            <div class="progress-container">
-                                <input type="range" class="progress-slider" id="progress-slider" min="0" max="100" value="0">
-                            </div>
-                            <span class="time-display" id="time-display">00:00 / 00:00</span>
-                            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100">
-                            <button class="fullscreen-btn" id="fullscreen-btn">
-                                <i class="bi bi-fullscreen"></i>
-                            </button>
+                <!-- 更多信息区域 -->
+                <section class="more-info">
+                    <h3>详细信息</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">播出时间</th>
+                                        <td id="anime-aired"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">首播季节</th>
+                                        <td id="anime-premiered"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">制作公司</th>
+                                        <td id="anime-studios"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">制作人员</th>
+                                        <td id="anime-producers"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">原作</th>
+                                        <td id="anime-source"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">主题</th>
+                                        <td id="anime-themes"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">类型</th>
+                                        <td id="anime-demographics"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">时长</th>
+                                        <td id="anime-duration"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
 
-                <!-- 章节列表 -->
+                <!-- 背景信息区域 -->
+                <section class="background-info">
+                    <h3>背景信息</h3>
+                    <p id="anime-background">暂无背景信息</p>
+                </section>
+
+                <!-- 剧集列表 -->
                 <section class="episodes">
                     <h3>剧集列表</h3>
                     <div class="episode-list" id="episode-list">
@@ -123,12 +163,54 @@
                 <!-- 评论区 -->
                 <section class="comments">
                     <h3>用户评论</h3>
-                    <div class="comment-form">
-                        <textarea placeholder="留下你的评论..." id="comment-input"></textarea>
-                        <button id="submit-comment" class="btn btn-primary mt-2">提交评论</button>
+                    <div class="comment-form-container">
+                        <div class="comment-form">
+                            <div class="form-header">
+                                <h4>发表评论</h4>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" placeholder="留下你的评论..." id="comment-input"
+                                    rows="4"></textarea>
+                            </div>
+                            <div class="form-footer">
+                                <button id="submit-comment" class="btn btn-primary">提交评论</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="comment-list" id="comment-list">
                         <!-- 动态渲染评论 -->
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        <i class="bi bi-person-circle"></i>
+                                    </div>
+                                    <div class="user-details">
+                                        <div class="user-name">用户名</div>
+                                        <div class="comment-time">2023-05-15 14:30</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                这是一部非常精彩的动漫，剧情紧凑，人物刻画深入。每一集都让人期待下一集的发展。
+                            </div>
+                        </div>
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        <i class="bi bi-person-circle"></i>
+                                    </div>
+                                    <div class="user-details">
+                                        <div class="user-name">动漫爱好者</div>
+                                        <div class="comment-time">2023-05-10 09:15</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                画质和音效都很棒，推荐给大家！
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -150,4 +232,5 @@
     <script src="js/api/anime-service.js"></script>
     <script src="js/page/detail.js"></script>
 </body>
+
 </html>

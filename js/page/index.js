@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     const sortSelect = document.getElementById('sort-select');
     const backToTopBtn = document.getElementById('back-to-top');
 
+    if (window.AnimeAPI) {
+        AnimeAPI.setProvider('jikan');
+    }
+
     // 显示加载状态
     function showLoading() {
         if (loadingIndicator) {
@@ -55,11 +59,31 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    // 预加载热门动漫数据
+    async function preloadPopularAnime() {
+        try {
+            // 预加载第一页热门动漫数据
+            const params = {
+                page: 1,
+                limit: 20,
+                order_by: 'popularity'
+            };
+            
+            // 不显示加载状态，后台预加载
+            await AnimeAPI.getAnimeList(params);
+        } catch (error) {
+            console.log('预加载数据失败:', error);
+        }
+    }
+
     // 渲染动漫列表
     async function renderAnimeList(page = 1, append = false) {
         if (isLoading) return;
 
-        showLoading();
+        // 只在非第一页或追加时显示加载状态
+        if (page > 1 || append) {
+            showLoading();
+        }
 
         if (!append) {
             currentPage = 1;
@@ -69,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const params = {
                 page: page,
-                limit: 24,
+                limit: 20, // 减少每页数量以提高加载速度
                 order_by: getSortValue(),
                 ...getActiveFilters()
             };
@@ -127,8 +151,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         const col = document.createElement('div');
         col.className = 'col-md-6 col-lg-4 col-xl-3 mb-4';
 
-        const imageUrl = anime.images?.jpg?.large_image_url ||
-            anime.images?.jpg?.image_url ||
+        // 使用较小的图片以提高加载速度
+        const imageUrl = anime.images?.jpg?.image_url ||
+            anime.images?.jpg?.large_image_url ||
             'assets/images/poster/default.jpg';
 
         const score = anime.score ? anime.score.toFixed(1) : 'N/A';
@@ -219,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     function renderGenres(genres) {
         if (!genres || genres.length === 0) return '';
 
-        return genres.slice(0, 3).map(genre => `
+        return genres.slice(0, 2).map(genre => `
             <span class="badge bg-secondary me-1 mb-1 small">${genre.name}</span>
         `).join('');
     }
@@ -334,14 +359,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // 检查用户登录状态（使用本地存储）
-async function isUserLoggedIn() {
-    try {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        return currentUser && currentUser.loggedIn;
-    } catch (e) {
-        return false;
+    async function isUserLoggedIn() {
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            return currentUser && currentUser.loggedIn;
+        } catch (e) {
+            return false;
+        }
     }
-}
 
     // 查看动漫详情
     window.viewAnimeDetail = async function (malId) {
@@ -377,7 +402,7 @@ async function isUserLoggedIn() {
 
             const response = await CommonUtils.apiFetch(endpoint, {
                 method: method,
-                ...animeGrid(isFavorite ? {} : { body: JSON.stringify({ mal_id: malid }) })
+                ...(isFavorite ? {} : { body: JSON.stringify({ mal_id: malId }) })
             });
 
             if (response.ok) {
@@ -524,7 +549,7 @@ async function isUserLoggedIn() {
         if (!(await isUserLoggedIn())) return;
 
         try {
-            const response = await CommonUtil.apiFetch('/api/user/favorites', { method: 'GET' });
+            const response = await CommonUtils.apiFetch('/api/user/favorites', { method: 'GET' });
 
             if (response.ok) {
                 const favorites = await response.json();
@@ -565,6 +590,9 @@ async function isUserLoggedIn() {
 
             // 初始化UI
             initUI();
+
+            // 预加载热门动漫数据
+            preloadPopularAnime();
 
             // 渲染动漫列表
             await renderAnimeList(1, false);
