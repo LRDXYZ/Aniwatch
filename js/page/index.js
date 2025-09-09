@@ -15,8 +15,28 @@ document.addEventListener('DOMContentLoaded', async function () {
     const sortSelect = document.getElementById('sort-select');
     const backToTopBtn = document.getElementById('back-to-top');
 
+    // 等待API服务加载完成
+    function waitForAPI(maxAttempts = 50) {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            
+            function checkAPI() {
+                if (window.AnimeAPI) {
+                    resolve(window.AnimeAPI);
+                } else if (attempts >= maxAttempts) {
+                    reject(new Error('API服务未初始化'));
+                } else {
+                    attempts++;
+                    setTimeout(checkAPI, 100);
+                }
+            }
+            
+            checkAPI();
+        });
+    }
+
     if (window.AnimeAPI) {
-        AnimeAPI.setProvider('jikan');
+        AnimeAPI.setProvider('anilist');
     }
 
     // 显示加载状态
@@ -643,10 +663,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 初始化页面
     async function init() {
         try {
+            // 等待API服务加载完成
+            await waitForAPI();
+
             // 检查API服务是否可用
             if (!window.AnimeAPI) {
                 throw new Error('API服务未初始化');
             }
+
+            // 设置使用AniList API
+            AnimeAPI.setProvider('anilist');
 
             // 初始化事件监听
             initEventListeners();
@@ -659,6 +685,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // 渲染动漫列表
             await renderAnimeList(1, false);
+
             // 初始化音乐播放器
             initMusicPlayer();
 

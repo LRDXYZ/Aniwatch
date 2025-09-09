@@ -1,20 +1,19 @@
-// js/api/anime-service.js
+// js/api/anime-service.js (完整版本)
 /**
  * 统一的动漫API服务
  */
 class AnimeAPIService {
     constructor() {
         this.providers = {
-            jikan: window.JikanAPI
-            // 移除bilibili提供者
+            jikan: window.JikanAPI,
+            anilist: window.AniListAPI // 添加AniList支持
         };
-        this.currentProvider = 'jikan';
+        this.currentProvider = 'anilist'; // 默认使用AniList
     }
 
     // 设置API提供商
     setProvider(provider) {
-        // 只允许使用jikan提供者
-        if (provider === 'jikan' && this.providers[provider]) {
+        if (this.providers[provider]) {
             this.currentProvider = provider;
         }
     }
@@ -22,9 +21,14 @@ class AnimeAPIService {
     // 获取动漫列表
     async getAnimeList(params = {}) {
         try {
-            // 只使用jikan API
-            const data = await this.providers[this.currentProvider].getAnimeList(params);
-            return this.formatAnimeList(data);
+            let data;
+            if (this.currentProvider === 'anilist') {
+                data = await this.providers[this.currentProvider].getAnimeList(params);
+                return this.formatAnimeListAniList(data);
+            } else {
+                data = await this.providers[this.currentProvider].getAnimeList(params);
+                return this.formatAnimeList(data);
+            }
         } catch (error) {
             console.error('获取动漫列表失败:', error);
             throw error;
@@ -34,9 +38,14 @@ class AnimeAPIService {
     // 搜索动漫
     async searchAnime(query, filters = {}) {
         try {
-            // 只使用jikan API
-            const data = await this.providers[this.currentProvider].searchAnime(query, filters);
-            return this.formatAnimeList(data);
+            let data;
+            if (this.currentProvider === 'anilist') {
+                data = await this.providers[this.currentProvider].searchAnime(query, filters);
+                return this.formatAnimeListAniList(data);
+            } else {
+                data = await this.providers[this.currentProvider].searchAnime(query, filters);
+                return this.formatAnimeList(data);
+            }
         } catch (error) {
             console.error('搜索动漫失败:', error);
             throw error;
@@ -46,9 +55,14 @@ class AnimeAPIService {
     // 获取动漫详情
     async getAnimeDetail(id) {
         try {
-            // 只使用jikan API
-            const data = await this.providers[this.currentProvider].getAnimeById(id);
-            return this.formatAnimeDetail(data);
+            let data;
+            if (this.currentProvider === 'anilist') {
+                data = await this.providers[this.currentProvider].getAnimeById(id);
+                return this.formatAnimeDetailAniList(data);
+            } else {
+                data = await this.providers[this.currentProvider].getAnimeById(id);
+                return this.formatAnimeDetail(data);
+            }
         } catch (error) {
             console.error('获取动漫详情失败:', error);
             throw error;
@@ -58,9 +72,13 @@ class AnimeAPIService {
     // 获取剧集列表
     async getEpisodes(animeId, params = {}) {
         try {
-            // 只使用jikan API
-            const data = await this.providers[this.currentProvider].getAnimeEpisodes(animeId, params);
-            return this.formatEpisodes(data);
+            if (this.currentProvider === 'anilist') {
+                // AniList没有剧集概念，返回空数组
+                return [];
+            } else {
+                const data = await this.providers[this.currentProvider].getAnimeEpisodes(animeId, params);
+                return this.formatEpisodes(data);
+            }
         } catch (error) {
             console.error('获取剧集失败:', error);
             throw error;
@@ -130,6 +148,156 @@ class AnimeAPIService {
             }));
         }
         return [];
+    }
+
+    // 格式化动漫列表 (AniList) - 优化中文显示
+    formatAnimeListAniList(data) {
+        if (data.data && data.data.Page) {
+            const pageData = data.data.Page;
+            return {
+                anime: pageData.media.map(item => this.formatAnimeItemAniList(item)),
+                pagination: {
+                    current_page: pageData.pageInfo.currentPage,
+                    last_page: pageData.pageInfo.lastPage,
+                    has_next_page: pageData.pageInfo.hasNextPage,
+                    items: {
+                        total: pageData.pageInfo.total
+                    }
+                }
+            };
+        }
+        return { anime: [], pagination: null };
+    }
+
+    // 格式化单个动漫项目 (AniList) - 优化中文显示
+    formatAnimeItemAniList(item) {
+        // 优先使用中文标题
+        let title = item.title.userPreferred || item.title.romaji;
+        // 如果有中文标题，优先使用
+        if (item.title.native && item.title.native.match(/[\u4e00-\u9fa5]/)) {
+            title = item.title.native;
+        } else if (item.title.chinese) {
+            title = item.title.chinese;
+        }
+
+        return {
+            id: item.id,
+            mal_id: item.id, // 使用AniList ID
+            title: title,
+            title_english: item.title.english,
+            title_japanese: item.title.native,
+            images: {
+                jpg: {
+                    image_url: item.coverImage.medium,
+                    large_image_url: item.coverImage.large
+                }
+            },
+            type: item.format,
+            episodes: item.episodes,
+            status: item.status,
+            score: item.averageScore ? item.averageScore / 10 : null, // AniList评分是100分制
+            scored_by: null,
+            rank: null,
+            popularity: item.popularity,
+            synopsis: item.description ? item.description.replace(/<[^>]*>/g, '') : null,
+            background: null,
+            season: item.season,
+            year: item.seasonYear,
+            genres: item.genres,
+            studios: item.studios ? item.studios.nodes.map(s => ({ name: s.name })) : [],
+            trailer: null
+        };
+    }
+
+    // 格式化动漫详情 (AniList) - 优化中文显示
+    formatAnimeDetailAniList(data) {
+        if (data.data && data.data.Media) {
+            const item = data.data.Media;
+
+            // 优先使用中文标题
+            let title = item.title.userPreferred || item.title.romaji;
+            // 如果有中文标题，优先使用
+            if (item.title.native && item.title.native.match(/[\u4e00-\u9fa5]/)) {
+                title = item.title.native;
+            } else if (item.title.chinese) {
+                title = item.title.chinese;
+            }
+
+            // 处理角色名称
+            let characters = [];
+            if (item.characters && item.characters.edges) {
+                characters = item.characters.edges.map(edge => {
+                    const node = edge.node;
+                    let characterName = node.name.userPreferred || node.name.full;
+                    if (node.name.native && node.name.native.match(/[\u4e00-\u9fa5]/)) {
+                        characterName = node.name.native;
+                    }
+                    return {
+                        id: node.id,
+                        name: characterName,
+                        name_native: node.name.native,
+                        name_full: node.name.full,
+                        image: node.image,
+                        role: edge.role
+                    };
+                });
+            }
+
+            // 处理工作人员名称
+            let staff = [];
+            if (item.staff && item.staff.edges) {
+                staff = item.staff.edges.map(edge => {
+                    const node = edge.node;
+                    let staffName = node.name.userPreferred || node.name.full;
+                    if (node.name.native && node.name.native.match(/[\u4e00-\u9fa5]/)) {
+                        staffName = node.name.native;
+                    }
+                    return {
+                        id: node.id,
+                        name: staffName,
+                        name_native: node.name.native,
+                        name_full: node.name.full,
+                        role: edge.role
+                    };
+                });
+            }
+
+            return {
+                id: item.id,
+                mal_id: item.id,
+                title: title,
+                title_english: item.title.english,
+                title_japanese: item.title.native,
+                images: {
+                    jpg: {
+                        image_url: item.coverImage.medium,
+                        large_image_url: item.coverImage.large
+                    }
+                },
+                bannerImage: item.bannerImage,
+                type: item.format,
+                episodes: item.episodes,
+                status: item.status,
+                score: item.averageScore ? item.averageScore / 10 : null,
+                scored_by: null,
+                rank: null,
+                popularity: item.popularity,
+                synopsis: item.description ? item.description.replace(/<[^>]*>/g, '') : null,
+                background: null,
+                season: item.season,
+                year: item.seasonYear,
+                genres: item.genres,
+                studios: item.studios ? item.studios.nodes.map(s => ({ name: s.name })) : [],
+                trailer: null,
+                source: item.source,
+                duration: item.duration,
+                startDate: item.startDate,
+                endDate: item.endDate,
+                characters: characters,
+                staff: staff
+            };
+        }
+        return null;
     }
 }
 
