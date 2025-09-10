@@ -121,106 +121,111 @@ class AniListService {
     // 获取动漫详情 - 添加更多中文字段
     async getAnimeById(id) {
         const query = `
-            query ($id: Int) {
-                Media(id: $id, type: ANIME) {
-                    id
-                    title {
-                        romaji
-                        english
-                        native
-                        userPreferred
-                    }
-                    coverImage {
-                        large
-                        medium
-                    }
-                    bannerImage
-                    format
-                    episodes
-                    status
-                    season
-                    seasonYear
-                    duration
-                    averageScore
-                    meanScore
-                    popularity
-                    favourites
-                    description
-                    genres
-                    tags {
-                        name
-                    }
-                    studios {
-                        nodes {
-                            name
+    query ($id: Int) {
+        Media(id: $id, type: ANIME) {
+            id
+            title {
+                romaji
+                english
+                native
+                userPreferred
+            }
+            coverImage {
+                large
+                medium
+            }
+            bannerImage
+            format
+            episodes
+            status
+            season
+            seasonYear
+            duration
+            averageScore
+            meanScore
+            popularity
+            favourites
+            description
+            genres
+            tags {
+                name
+            }
+            studios {
+                nodes {
+                    name
+                }
+            }
+            source
+            trailer {
+                id
+                site
+                thumbnail
+            }
+            startDate {
+                year
+                month
+                day
+            }
+            endDate {
+                year
+                month
+                day
+            }
+            season
+            seasonYear
+            characters(sort: ROLE) {
+                edges {
+                    role
+                    node {
+                        id
+                        name {
+                            full
+                            native
+                            userPreferred
                         }
-                    }
-                    source
-                    startDate {
-                        year
-                        month
-                        day
-                    }
-                    endDate {
-                        year
-                        month
-                        day
-                    }
-                    season
-                    seasonYear
-                    characters(sort: ROLE) {
-                        edges {
-                            role
-                            node {
-                                id
-                                name {
-                                    full
-                                    native
-                                    userPreferred
-                                }
-                                image {
-                                    large
-                                    medium
-                                }
-                            }
-                        }
-                    }
-                    staff(sort: RELEVANCE) {
-                        edges {
-                            role
-                            node {
-                                id
-                                name {
-                                    full
-                                    native
-                                    userPreferred
-                                }
-                            }
-                        }
-                    }
-                    recommendations(sort: RATING_DESC) {
-                        nodes {
-                            mediaRecommendation {
-                                id
-                                title {
-                                    romaji
-                                    english
-                                    native
-                                    userPreferred
-                                }
-                                coverImage {
-                                    large
-                                    medium
-                                }
-                                format
-                                averageScore
-                                episodes
-                            }
+                        image {
+                            large
+                            medium
                         }
                     }
                 }
             }
-        `;
+            staff(sort: RELEVANCE) {
+                edges {
+                    role
+                    node {
+                        id
+                        name {
+                            full
+                            native
+                            userPreferred
+                        }
+                    }
+                }
+            }
+            recommendations(sort: RATING_DESC) {
+                nodes {
+                    mediaRecommendation {
+                        id
+                        title {
+                            romaji
+                            english
+                            native
+                            userPreferred
+                        }
+                        coverImage {
+                            large
+                            medium
+                        }
+                        format
+                        averageScore
+                        episodes
+                    }
+                }
+            }
+        }
+    }
+`;
 
         const variables = { id };
 

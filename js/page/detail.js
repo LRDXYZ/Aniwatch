@@ -166,6 +166,8 @@ function renderAnimeDetail(anime) {
     if (backgroundElement) {
         backgroundElement.textContent = anime.background || '暂无背景信息';
     }
+    // 渲染预告片
+    renderTrailer(anime);
 }
 
 // 渲染评分图表
@@ -255,4 +257,55 @@ function renderEpisodes(episodes) {
         `;
         episodeListElement.appendChild(episodeElement);
     });
+}
+// 渲染预告片区域
+function renderTrailer(anime) {
+    const trailerContainer = document.getElementById('trailer-container');
+    if (!trailerContainer) return;
+
+    // 清空容器内容
+    trailerContainer.innerHTML = '';
+
+    // 检查是否有预告片信息
+    if (anime.trailer && anime.trailer.site === 'youtube' && anime.trailer.id) {
+        // 创建预告片元素
+        const trailerElement = document.createElement('div');
+        trailerElement.className = 'trailer-content';
+        trailerElement.innerHTML = `
+            <div class="video-container mb-3">
+                <iframe 
+                    src="https://www.youtube.com/embed/${anime.trailer.id}" 
+                    title="${anime.title} 预告片" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    class="trailer-video">
+                </iframe>
+            </div>
+            <div class="trailer-actions d-flex flex-wrap gap-2">
+                <a href="https://www.youtube.com/watch?v=${anime.trailer.id}" 
+                   target="_blank" 
+                   class="btn btn-danger">
+                    <i class="bi bi-youtube"></i> 在YouTube上观看
+                </a>
+                <button id="youtube-bilibili-btn" class="btn btn-primary">
+                    <i class="bi bi-play-btn"></i> 在B站上观看
+                </button>
+            </div>
+        `;
+
+        trailerContainer.appendChild(trailerElement);
+
+        // 添加B站跳转功能
+        const bilibiliBtn = trailerElement.querySelector('#youtube-bilibili-btn');
+        if (bilibiliBtn) {
+            bilibiliBtn.addEventListener('click', () => {
+                const searchQuery = encodeURIComponent(anime.title || anime.title_english || anime.title_japanese);
+                const bilibiliSearchUrl = `https://search.bilibili.com/bangumi?keyword=${searchQuery}`;
+                window.open(bilibiliSearchUrl, '_blank');
+            });
+        }
+    } else {
+        trailerContainer.innerHTML = '<p class="text-muted">暂无预告片信息</p>';
+    }
 }

@@ -690,3 +690,62 @@
         width: 100%;
     }
 }
+
+/* 预告片区域样式 */
+.trailer-section {
+    background-color: var(--bg-dark);
+    border-radius: 12px;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.trailer-section h3 {
+    color: var(--text-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    /* 16:9 宽高比 */
+    height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    background-color: #000;
+}
+
+.trailer-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.trailer-actions {
+    margin-top: 1rem;
+}
+
+.trailer-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .trailer-actions {
+        flex-direction: column;
+    }
+
+    .trailer-actions .btn {
+        width: 100%;
+    }
+
+    .trailer-section {
+        padding: 1.5rem 0;
+    }
+}

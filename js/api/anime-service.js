@@ -288,7 +288,7 @@ class AnimeAPIService {
                 year: item.seasonYear,
                 genres: item.genres,
                 studios: item.studios ? item.studios.nodes.map(s => ({ name: s.name })) : [],
-                trailer: null,
+                trailer: item.trailer, // 添加这一行
                 source: item.source,
                 duration: item.duration,
                 startDate: item.startDate,
