@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     const searchInput = document.querySelector('.navbar input[type="search"]');
     const backToTopBtn = document.getElementById('back-to-top'); // 获取回到顶部按钮
 
+    // 初始化背景音乐管理器
+    CommonUtils.BackgroundMusicManager.init();
+
     // 等待API服务加载完成
     function waitForAPI(maxAttempts = 50) {
         return new Promise((resolve, reject) => {
@@ -282,6 +285,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // 查看动漫详情
     window.viewAnimeDetail = async function (malId) {
+        // 保存背景音乐状态
+        CommonUtils.BackgroundMusicManager.savePlaybackState();
         window.location.href = `detail.html?mal_id=${malId}`;
     };
 
@@ -343,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 音乐播放控制功能
     function initMusicPlayer() {
         const musicControl = document.getElementById('music-control');
-        const backgroundMusic = document.getElementById('background-music');
+        const backgroundMusic = CommonUtils.BackgroundMusicManager.getAudioElement();
 
         if (!musicControl || !backgroundMusic) {
             console.warn('音乐播放器元素未找到');
@@ -358,20 +363,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // 控制按钮点击事件
         musicControl.addEventListener('click', function () {
-            if (backgroundMusic.paused) {
-                // 播放音乐
-                backgroundMusic.play()
-                    .then(() => {
-                        musicControl.classList.add('playing');
-                        musicControl.classList.remove('paused');
-                        musicControl.innerHTML = '<i class="bi bi-pause"></i>';
-                    })
-                    .catch(error => {
-                        console.log('自动播放被阻止，需要用户交互:', error);
-                    });
+            CommonUtils.BackgroundMusicManager.toggle();
+
+            // 更新按钮状态
+            if (CommonUtils.BackgroundMusicManager.isPlaying) {
+                musicControl.classList.add('playing');
+                musicControl.classList.remove('paused');
+                musicControl.innerHTML = '<i class="bi bi-pause"></i>';
             } else {
-                // 暂停音乐
-                backgroundMusic.pause();
                 musicControl.classList.add('paused');
                 musicControl.classList.remove('playing');
                 musicControl.innerHTML = '<i class="bi bi-play"></i>';
@@ -393,11 +392,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // 页面可见性变化时的处理
         document.addEventListener('visibilitychange', function () {
-            if (document.hidden && !backgroundMusic.paused) {
-                backgroundMusic.pause();
-                musicControl.classList.add('paused');
-                musicControl.classList.remove('playing');
-                musicControl.innerHTML = '<i class="bi bi-play"></i>';
+            if (document.hidden && CommonUtils.BackgroundMusicManager.isPlaying) {
+                CommonUtils.BackgroundMusicManager.savePlaybackState();
             }
         });
     }
@@ -413,7 +409,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         backToTopBtn.style.display = 'none';
 
         // 监听滚动事件
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             // 当滚动超过300px时显示按钮
             if (window.scrollY > 300) {
                 backToTopBtn.style.display = 'flex';
@@ -423,7 +419,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         // 点击按钮回到顶部
-        backToTopBtn.addEventListener('click', function() {
+        backToTopBtn.addEventListener('click', function () {
             // 平滑滚动到顶部
             window.scrollTo({
                 top: 0,

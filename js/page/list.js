@@ -1,5 +1,8 @@
 // 列表页交互逻辑
 document.addEventListener('DOMContentLoaded', async function () {
+    // 初始化背景音乐管理器
+    CommonUtils.BackgroundMusicManager.init();
+    
     // 获取DOM元素
     const searchForm = document.getElementById('search-form');
     const searchInput = document.getElementById('search-input');
@@ -445,6 +448,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // 查看动漫详情
     window.viewAnimeDetail = async function (malId) {
+        // 保存背景音乐状态
+        CommonUtils.BackgroundMusicManager.savePlaybackState();
         window.location.href = `detail.html?mal_id=${malId}`;
     };
 

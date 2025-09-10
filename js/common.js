@@ -203,6 +203,127 @@ function apiFetch(url, options = {}) {
     };
     return fetch(url, config);
 }
+
+// 背景音乐管理器
+const BackgroundMusicManager = {
+    // 初始化背景音乐
+    init() {
+        // 检查是否已存在音频元素
+        if (this.audio) {
+            return;
+        }
+
+        // 创建音频元素
+        this.audio = new Audio();
+        this.audio.src = 'assets/media/audio/background.mp3';
+        this.audio.loop = true;
+        this.audio.volume = 0.3;
+        this.audio.preload = 'auto';
+
+        // 从 sessionStorage 恢复播放状态
+        this.restorePlaybackState();
+
+        // 监听页面可见性变化
+        document.addEventListener('visibilitychange', () => {
+            this.handleVisibilityChange();
+        });
+
+        // 监听页面卸载事件，保存播放状态
+        window.addEventListener('beforeunload', () => {
+            this.savePlaybackState();
+        });
+    },
+
+    // 播放音乐
+    play() {
+        // 如果音频还未加载完成，先加载
+        if (this.audio.readyState === 0) {
+            this.audio.load();
+        }
+
+        this.audio.play()
+            .then(() => {
+                this.isPlaying = true;
+                this.savePlaybackState();
+            })
+            .catch(error => {
+                console.log('自动播放被阻止，需要用户交互:', error);
+            });
+    },
+
+    // 暂停音乐
+    pause() {
+        this.audio.pause();
+        this.isPlaying = false;
+        this.savePlaybackState();
+    },
+
+    // 切换播放状态
+    toggle() {
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            this.play();
+        }
+    },
+
+    // 保存播放状态到 sessionStorage
+    savePlaybackState() {
+        const state = {
+            isPlaying: this.isPlaying,
+            currentTime: this.audio.currentTime,
+            volume: this.audio.volume
+        };
+        try {
+            sessionStorage.setItem('backgroundMusicState', JSON.stringify(state));
+        } catch (e) {
+            console.warn('无法保存音乐播放状态到 sessionStorage:', e);
+        }
+    },
+
+    // 从 sessionStorage 恢复播放状态
+    restorePlaybackState() {
+        try {
+            const state = JSON.parse(sessionStorage.getItem('backgroundMusicState'));
+            if (state) {
+                this.audio.currentTime = state.currentTime || 0;
+                this.audio.volume = state.volume || 0.3;
+
+                if (state.isPlaying) {
+                    // 延迟播放以确保页面已加载完成
+                    setTimeout(() => {
+                        this.play();
+                    }, 100);
+                }
+            }
+        } catch (error) {
+            console.error('恢复背景音乐状态失败:', error);
+        }
+    },
+
+    // 处理页面可见性变化
+    handleVisibilityChange() {
+        if (document.hidden) {
+            // 页面隐藏时保存状态
+            this.savePlaybackState();
+        } else {
+            // 页面显示时恢复状态
+            this.restorePlaybackState();
+        }
+    },
+
+    // 获取音频元素（用于控制按钮绑定）
+    getAudioElement() {
+        return this.audio;
+    },
+
+    // 设置音量
+    setVolume(volume) {
+        this.audio.volume = volume;
+        this.savePlaybackState();
+    }
+};
+
 // 导出所有函数
 window.CommonUtils = {
     // 存储相关
@@ -227,8 +348,8 @@ window.CommonUtils = {
     throttle,
     generateId,
     deepClone,
-    apiFetch
+    apiFetch,
+
+    // 背景音乐管理
+    BackgroundMusicManager
 };
-
-
-

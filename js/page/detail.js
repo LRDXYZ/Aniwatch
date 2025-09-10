@@ -1,6 +1,9 @@
 // js/page/detail.js
 // 等待所有资源加载完成后再执行
 window.addEventListener('DOMContentLoaded', async function () {
+    // 初始化背景音乐管理器
+    CommonUtils.BackgroundMusicManager.init();
+
     // 检查必要的API是否已加载
     if (typeof window.AnimeAPI === 'undefined') {
         console.error('API 未定义，请检查脚本加载顺序');
@@ -453,6 +456,9 @@ function setupBilibiliRedirect(anime) {
 
     // 添加点击事件
     bilibiliBtn.addEventListener('click', () => {
+        // 保存背景音乐状态
+        CommonUtils.BackgroundMusicManager.savePlaybackState();
+        
         // 使用更广泛的搜索关键词提高成功率
         const searchTerms = [
             anime.title,
@@ -517,6 +523,9 @@ function renderTrailer(anime) {
         const bilibiliBtn = trailerElement.querySelector('#youtube-bilibili-btn');
         if (bilibiliBtn) {
             bilibiliBtn.addEventListener('click', () => {
+                // 保存背景音乐状态
+                CommonUtils.BackgroundMusicManager.savePlaybackState();
+                
                 // 使用更广泛的搜索关键词提高成功率
                 const searchTerms = [
                     anime.title,
@@ -563,6 +572,9 @@ function renderTrailer(anime) {
         const bilibiliBtn = trailerElement.querySelector('#youtube-bilibili-btn');
         if (bilibiliBtn) {
             bilibiliBtn.addEventListener('click', () => {
+                // 保存背景音乐状态
+                CommonUtils.BackgroundMusicManager.savePlaybackState();
+                
                 // 使用更广泛的搜索关键词提高成功率
                 const searchTerms = [
                     anime.title,
@@ -597,6 +609,9 @@ function renderTrailer(anime) {
         const searchTrailerBtn = trailerElement.querySelector('#search-trailer-btn');
         if (searchTrailerBtn) {
             searchTrailerBtn.addEventListener('click', () => {
+                // 保存背景音乐状态
+                CommonUtils.BackgroundMusicManager.savePlaybackState();
+                
                 // 使用多个关键词搜索YouTube
                 const searchTerms = [
                     anime.title,
@@ -615,6 +630,9 @@ function renderTrailer(anime) {
         const searchBilibiliBtn = trailerElement.querySelector('#search-bilibili-btn');
         if (searchBilibiliBtn) {
             searchBilibiliBtn.addEventListener('click', () => {
+                // 保存背景音乐状态
+                CommonUtils.BackgroundMusicManager.savePlaybackState();
+                
                 // 使用多个关键词搜索B站
                 const searchTerms = [
                     anime.title,
