@@ -55,8 +55,8 @@
                     </li>
                 </ul>
 
-                <form class="d-flex ms-3">
-                    <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search">
+                <form class="d-flex ms-3" id="global-search-form">
+                    <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search" id="global-search-input">
                     <button class="btn btn-outline-light" type="submit">
                         <i class="bi bi-search"></i>
                     </button>
@@ -82,14 +82,20 @@
                             <option value="comedy">喜剧</option>
                             <option value="drama">剧情</option>
                             <option value="fantasy">奇幻</option>
+                            <option value="adventure">冒险</option>
+                            <option value="romance">恋爱</option>
+                            <option value="school">校园</option>
+                            <option value="slice of life">日常</option>
                         </select>
                     </div>
 
                     <div class="col-md-2">
                         <select class="form-select form-select-lg" id="status-filter">
                             <option value="">所有状态</option>
-                            <option value="ongoing">连载中</option>
-                            <option value="completed">已完结</option>
+                            <option value="FINISHED">已完结</option>
+                            <option value="RELEASING">连载中</option>
+                            <option value="NOT_YET_RELEASED">未播出</option>
+                            <option value="CANCELLED">已取消</option>
                         </select>
                     </div>
 
@@ -109,26 +115,18 @@
 
                 <div class="row g-4" id="anime-grid">
                     <!-- 动态渲染区域 -->
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                        <p class="mt-2 text-muted">正在加载动漫数据...</p>
+                    </div>
                 </div>
 
                 <!-- 分页 -->
-                <nav class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">上一页</a>
-                        </li>
-                        <li class="page-item active">
-                            <a class="page-link" href="#">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">3</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">下一页</a>
-                        </li>
+                <nav class="mt-5" id="pagination-container">
+                    <ul class="pagination justify-content-center" id="pagination">
+                        <!-- 分页将在这里动态渲染 -->
                     </ul>
                 </nav>
             </div>
@@ -137,13 +135,59 @@
 
     <!-- 复用相同的底部 -->
     <footer class="footer py-4 bg-dark text-light">
-        <!-- ... 底部内容与首页相同 ... -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5 class="fw-bold">
+                        <i class="bi bi-play-btn-fill me-2"></i>AniWatch
+                    </h5>
+                    <p class="text-muted">致力于为动漫爱好者提供最好的观看体验</p>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <h6>快速链接</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-decoration-none text-muted">首页</a></li>
+                        <li><a href="list.html" class="text-decoration-none text-muted">动漫列表</a></li>
+                        <li><a href="about.html" class="text-decoration-none text-muted">关于我们</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <h6>分类</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="list.html?category=action" class="text-decoration-none text-muted">动作</a></li>
+                        <li><a href="list.html?category=comedy" class="text-decoration-none text-muted">喜剧</a></li>
+                        <li><a href="list.html?category=drama" class="text-decoration-none text-muted">剧情</a></li>
+                        <li><a href="list.html?category=fantasy" class="text-decoration-none text-muted">奇幻</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <h6>联系我们</h6>
+                    <ul class="list-unstyled">
+                        <li class="text-muted">邮箱: contact@aniwatch.com</li>
+                        <li class="text-muted">客服: 400-123-4567</li>
+                    </ul>
+                    <div class="social-links">
+                        <a href="#" class="text-decoration-none text-muted me-2"><i class="bi bi-wechat"></i></a>
+                        <a href="#" class="text-decoration-none text-muted me-2"><i class="bi bi-weibo"></i></a>
+                        <a href="#" class="text-decoration-none text-muted"><i class="bi bi-qq"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="text-center">
+                <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+            </div>
+        </div>
     </footer>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/api/jikan-service.js"></script>
-    <script src="js/api/bilibili-service.js"></script>
+    <script src="js/api/anilist-service.js"></script>
     <script src="js/api/anime-service.js"></script>
     <script src="js/common.js"></script>
     <script src="js/dom.js"></script>
