@@ -19,7 +19,7 @@ class AnimeAPIService {
     }
 
     // 获取动漫列表
-    async getAnimeList(params = {}) {
+   async getAnimeList(params = {}) {
         try {
             let data;
             if (this.currentProvider === 'anilist') {
