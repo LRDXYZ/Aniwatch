@@ -2,8 +2,8 @@
 // 等待所有资源加载完成后再执行
 window.addEventListener('DOMContentLoaded', async function () {
     // 检查必要的API是否已加载
-    if (typeof window.AnimeAPI === 'undefined') {
-        console.error('AnimeAPI 未定义，请检查脚本加载顺序');
+    if (typeof window.JikanAPI === 'undefined' && typeof window.AnimeAPI === 'undefined') {
+        console.error('API 未定义，请检查脚本加载顺序');
         document.body.innerHTML = `
             <div class="container mt-5">
                 <div class="alert alert-danger">
@@ -26,10 +26,40 @@ window.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
-        // 使用AniList API获取数据
-        AnimeAPI.setProvider('anilist');
-        const animeDetail = await AnimeAPI.getAnimeDetail(animeId);
-        const episodes = await AnimeAPI.getEpisodes(animeId);
+        let animeDetail, episodes = [];
+
+        // 尝试使用 Jikan API (来自列表页的数据)
+        if (window.JikanAPI) {
+            try {
+                const jikanAnimeDetail = await JikanAPI.getAnimeById(animeId);
+                animeDetail = jikanAnimeDetail.data;
+
+                // 尝试获取剧集信息
+                try {
+                    const jikanEpisodes = await JikanAPI.getAnimeEpisodes(animeId);
+                    episodes = jikanEpisodes.data || [];
+                } catch (epError) {
+                    console.warn('获取剧集信息失败:', epError);
+                }
+            } catch (jikanError) {
+                console.warn('Jikan API 获取动漫详情失败:', jikanError);
+            }
+        }
+
+        // 如果 Jikan API 失败，尝试使用 AniList API (来自首页的数据)
+        if (!animeDetail && window.AnimeAPI) {
+            try {
+                AnimeAPI.setProvider('anilist');
+                animeDetail = await AnimeAPI.getAnimeDetail(animeId);
+                episodes = await AnimeAPI.getEpisodes(animeId);
+            } catch (anilistError) {
+                console.error('AniList API 获取动漫详情失败:', anilistError);
+            }
+        }
+
+        if (!animeDetail) {
+            throw new Error('无法从任何API获取动漫详情');
+        }
 
         renderAnimeDetail(animeDetail);
         renderEpisodes(episodes);
@@ -74,9 +104,22 @@ function renderAnimeDetail(anime) {
     document.title = `${anime.title} - AniWatch`;
 
     // 设置封面图片
-    const imageUrl = anime.images?.jpg?.large_image_url ||
-        anime.images?.jpg?.image_url ||
-        'assets/images/poster/default.jpg';
+    // 根据数据来源选择正确的图片路径
+    let imageUrl = 'assets/images/poster/default.jpg';
+    if (anime.images?.jpg?.image_url) {
+        // Jikan API 格式
+        imageUrl = anime.images.jpg.image_url;
+    } else if (anime.images?.jpg?.large_image_url) {
+        // Jikan API 格式
+        imageUrl = anime.images.jpg.large_image_url;
+    } else if (anime.coverImage?.medium) {
+        // AniList API 格式
+        imageUrl = anime.coverImage.medium;
+    } else if (anime.coverImage?.large) {
+        // AniList API 格式
+        imageUrl = anime.coverImage.large;
+    }
+
     const coverElement = document.getElementById('anime-cover');
     if (coverElement) {
         coverElement.src = imageUrl;
@@ -89,11 +132,18 @@ function renderAnimeDetail(anime) {
         titleElement.textContent = anime.title;
     }
 
-    // 设置描述 - 优化中文显示
+    // 设置描述
     const descriptionElement = document.getElementById('anime-description');
     if (descriptionElement) {
-        // 如果有中文简介，使用中文简介，否则使用原始简介
-        const synopsis = anime.synopsis || anime.description || '暂无简介';
+        // 根据API来源选择正确的描述字段
+        let synopsis = '暂无简介';
+        if (anime.synopsis) {
+            // Jikan API
+            synopsis = anime.synopsis;
+        } else if (anime.description) {
+            // AniList API
+            synopsis = anime.description.replace(/<[^>]*>/g, '');
+        }
         descriptionElement.textContent = synopsis;
     }
 
@@ -101,15 +151,20 @@ function renderAnimeDetail(anime) {
     const typeElement = document.getElementById('anime-type');
     if (typeElement) {
         // 中文化类型显示
+        let type = anime.type || '未知';
         const typeMap = {
+            // AniList 类型
             'TV': 'TV动画',
             'OVA': 'OVA',
             'ONA': 'ONA',
             'MOVIE': '剧场版',
             'SPECIAL': '特别篇',
-            'MUSIC': '音乐'
+            'MUSIC': '音乐',
+            // Jikan 类型
+            'Movie': '剧场版',
+            'Special': '特别篇'
         };
-        typeElement.textContent = typeMap[anime.type] || anime.type || '未知';
+        typeElement.textContent = typeMap[type] || type;
     }
 
     // 设置集数
@@ -121,51 +176,139 @@ function renderAnimeDetail(anime) {
     // 设置状态 - 中文化状态显示
     const statusElement = document.getElementById('anime-status');
     if (statusElement) {
+        let status = anime.status || '未知';
         const statusMap = {
+            // AniList 状态
             'FINISHED': '已完结',
             'RELEASING': '连载中',
             'NOT_YET_RELEASED': '未播出',
             'CANCELLED': '已取消',
-            'HIATUS': '休止中'
+            'HIATUS': '休止中',
+            // Jikan 状态
+            'Finished Airing': '已完结',
+            'Currently Airing': '连载中',
+            'Not yet aired': '未播出'
         };
-        statusElement.textContent = statusMap[anime.status] || anime.status || '未知';
+        statusElement.textContent = statusMap[status] || status;
     }
 
     // 渲染评分图表
+    // 根据API来源处理评分
+    let score = null;
     if (anime.score) {
-        renderRatingChart(anime.score);
+        // Jikan API (10分制)
+        score = anime.score;
+    } else if (anime.averageScore) {
+        // AniList API (100分制)
+        score = anime.averageScore / 10;
+    }
+
+    if (score) {
+        renderRatingChart(score);
     }
 
     // 设置详细信息 - 中文化显示
-    const airedText = anime.startDate ?
-        `${anime.startDate.year}-${String(anime.startDate.month).padStart(2, '0')}-${String(anime.startDate.day).padStart(2, '0')}` :
-        '未知';
+    // 根据API来源选择正确的日期字段
+    let airedText = '未知';
+    if (anime.aired?.string) {
+        // Jikan API
+        airedText = anime.aired.string;
+    } else if (anime.startDate) {
+        // AniList API
+        airedText = anime.startDate ?
+            `${anime.startDate.year}-${String(anime.startDate.month).padStart(2, '0')}-${String(anime.startDate.day).padStart(2, '0')}` :
+            '未知';
+    }
     document.getElementById('anime-aired').textContent = airedText;
 
-    document.getElementById('anime-premiered').textContent = anime.season ? `${anime.season} ${anime.year}` : '未知';
-    document.getElementById('anime-studios').textContent = anime.studios?.map(s => s.name).join(', ') || '未知';
-    document.getElementById('anime-producers').textContent = '未知'; // AniList API不提供制作人员信息
+    // 根据API来源选择正确的季/年字段
+    let premiered = '未知';
+    if (anime.season && anime.year) {
+        // AniList 和 Jikan API 都有
+        premiered = `${anime.season} ${anime.year}`;
+    } else if (anime.season) {
+        // 只有季
+        premiered = anime.season;
+    } else if (anime.year) {
+        // 只有年
+        premiered = anime.year;
+    }
+    document.getElementById('anime-premiered').textContent = premiered;
+
+    // 根据API来源选择正确的制作公司字段
+    let studiosText = '未知';
+    if (anime.studios && Array.isArray(anime.studios)) {
+        if (anime.studios.length > 0 && typeof anime.studios[0] === 'object') {
+            // AniList API 格式
+            studiosText = anime.studios.map(s => s.name).join(', ');
+        } else if (anime.studios.length > 0 && typeof anime.studios[0] === 'string') {
+            // Jikan API 格式
+            studiosText = anime.studios.join(', ');
+        }
+    }
+    document.getElementById('anime-studios').textContent = studiosText;
+
+    // 根据API来源选择正确的制作人员字段
+    let producersText = '未知';
+    if (anime.producers && Array.isArray(anime.producers)) {
+        if (anime.producers.length > 0 && typeof anime.producers[0] === 'object') {
+            // Jikan API 格式
+            producersText = anime.producers.map(p => p.name).join(', ');
+        } else if (anime.producers.length > 0 && typeof anime.producers[0] === 'string') {
+            // 可能的另一种格式
+            producersText = anime.producers.join(', ');
+        }
+    } else if (anime.producers) {
+        // AniList API 不提供制作人员信息
+        producersText = '未知';
+    }
+    document.getElementById('anime-producers').textContent = producersText;
 
     // 中文化来源显示
+    let source = anime.source || '未知';
     const sourceMapping = {
+        // AniList 来源
         'ORIGINAL': '原创',
         'MANGA': '漫画',
         'LIGHT_NOVEL': '轻小说',
         'VISUAL_NOVEL': '视觉小说',
         'VIDEO_GAME': '游戏',
-        'OTHER': '其他'
+        'OTHER': '其他',
+        // Jikan 来源
+        'Original': '原创',
+        'Manga': '漫画',
+        'Light novel': '轻小说',
+        'Visual novel': '视觉小说',
+        'Video game': '游戏',
+        'Other': '其他'
     };
-    document.getElementById('anime-source').textContent = sourceMapping[anime.source] || anime.source || '未知';
+    document.getElementById('anime-source').textContent = sourceMapping[source] || source;
 
-    document.getElementById('anime-themes').textContent = anime.genres?.join(', ') || '未知';
-    document.getElementById('anime-demographics').textContent = '未知'; // AniList API不提供人口统计数据
+    // 根据API来源选择正确的主题/类型字段
+    let themesText = '未知';
+    if (anime.themes && Array.isArray(anime.themes)) {
+        // Jikan API 格式
+        themesText = anime.themes.map(t => t.name || t).join(', ');
+    } else if (anime.genres && Array.isArray(anime.genres)) {
+        // AniList API 格式
+        themesText = anime.genres.join(', ');
+    }
+    document.getElementById('anime-themes').textContent = themesText;
+
+    document.getElementById('anime-demographics').textContent = '未知';
     document.getElementById('anime-duration').textContent = anime.duration ? `${anime.duration}分钟` : '未知';
 
     // 设置背景信息
     const backgroundElement = document.getElementById('anime-background');
     if (backgroundElement) {
-        backgroundElement.textContent = anime.background || '暂无背景信息';
+        let background = anime.background || '暂无背景信息';
+        // 如果是 AniList 数据，需要清理 HTML 标签
+        if (background && background.includes('<')) {
+            background = background.replace(/<[^>]*>/g, '');
+        }
+        backgroundElement.textContent = background;
     }
+
     // 渲染预告片
     renderTrailer(anime);
 }
@@ -182,7 +325,7 @@ function renderRatingChart(score) {
 
     const ctx = canvas.getContext('2d');
     const rating = score || 0;
-    const percentage = (rating / 10) * 100;
+    const percentage = (rating / 10) * 100; // 统一使用10分制显示
 
     // 绘制背景圆
     ctx.beginPath();
@@ -218,8 +361,19 @@ function setupBilibiliRedirect(anime) {
 
     // 添加点击事件
     bilibiliBtn.addEventListener('click', () => {
-        // 构造B站搜索URL
-        const searchQuery = encodeURIComponent(anime.title || anime.title_english || anime.title_japanese);
+        // 使用更广泛的搜索关键词提高成功率
+        const searchTerms = [
+            anime.title,
+            anime.title_english,
+            anime.title_japanese,
+            anime.name
+        ].filter(term => term); // 过滤掉空值
+
+        // 如果没有有效的搜索词，使用"动漫"作为默认关键词
+        const searchQuery = searchTerms.length > 0
+            ? encodeURIComponent(searchTerms.join(' '))
+            : encodeURIComponent('动漫');
+
         const bilibiliSearchUrl = `https://search.bilibili.com/bangumi?keyword=${searchQuery}`;
 
         // 在新窗口打开B站搜索页面
@@ -243,21 +397,63 @@ function renderEpisodes(episodes) {
     episodes.forEach(episode => {
         const episodeElement = document.createElement('div');
         episodeElement.className = 'episode-item';
+
+        // 根据数据来源选择正确的字段
+        let episodeNumber = 'N/A';
+        let episodeTitle = '无标题';
+        let episodeScore = 'N/A';
+        let episodeFiller = false;
+        let episodeRecap = false;
+        let episodeJapaneseTitle = '';
+        let episodeRomanjiTitle = '';
+
+        // Jikan API 格式
+        if (episode.hasOwnProperty('episode')) {
+            episodeNumber = episode.episode || 'N/A';
+            episodeTitle = episode.title || '无标题';
+            episodeScore = episode.score || 'N/A';
+            episodeFiller = episode.filler || false;
+            episodeRecap = episode.recap || false;
+            episodeJapaneseTitle = episode.title_japanese || '';
+            episodeRomanjiTitle = episode.title_romanji || '';
+        }
+        // AniList API 或其他格式
+        else {
+            episodeNumber = episode.number || episode.episode || 'N/A';
+            episodeTitle = episode.title || '无标题';
+            episodeScore = episode.score || 'N/A';
+            episodeFiller = episode.filler || false;
+            episodeRecap = episode.recap || false;
+            episodeJapaneseTitle = episode.title_japanese || '';
+            episodeRomanjiTitle = episode.title_romanji || '';
+        }
+
+        // 构建剧集信息HTML
+        let episodeInfoHtml = '';
+        if (episodeJapaneseTitle) {
+            episodeInfoHtml += `日文标题: ${episodeJapaneseTitle}<br>`;
+        }
+        if (episodeRomanjiTitle) {
+            episodeInfoHtml += `罗马音: ${episodeRomanjiTitle}<br>`;
+        }
+        if (episodeFiller) {
+            episodeInfoHtml += '填充集 ';
+        }
+        if (episodeRecap) {
+            episodeInfoHtml += '回顾集 ';
+        }
+
         episodeElement.innerHTML = `
             <div class="episode-header">
-                <h5>${episode.episode}. ${episode.title}</h5>
-                <span class="episode-score">${episode.score || 'N/A'}</span>
+                <h5>${episodeNumber}. ${episodeTitle}</h5>
+                <span class="episode-score">${episodeScore}</span>
             </div>
-            <p class="episode-info">
-                ${episode.title_japanese ? `日文标题: ${episode.title_japanese}<br>` : ''}
-                ${episode.title_romanji ? `罗马音: ${episode.title_romanji}<br>` : ''}
-                ${episode.filler ? '填充集' : ''}
-                ${episode.recap ? '回顾集' : ''}
-            </p>
+            ${episodeInfoHtml ? `<p class="episode-info">${episodeInfoHtml}</p>` : ''}
         `;
         episodeListElement.appendChild(episodeElement);
     });
 }
+
 // 渲染预告片区域
 function renderTrailer(anime) {
     const trailerContainer = document.getElementById('trailer-container');
@@ -266,15 +462,63 @@ function renderTrailer(anime) {
     // 清空容器内容
     trailerContainer.innerHTML = '';
 
-    // 检查是否有预告片信息
-    if (anime.trailer && anime.trailer.site === 'youtube' && anime.trailer.id) {
-        // 创建预告片元素
+    // 检查是否有预告片信息 (支持两种API格式)
+    let trailerUrl = null;
+    let trailerId = null;
+
+    // Jikan API 格式
+    if (anime.trailer_url) {
+        trailerUrl = anime.trailer_url;
+    }
+    // AniList API 格式
+    else if (anime.trailer && anime.trailer.site === 'youtube' && anime.trailer.id) {
+        trailerId = anime.trailer.id;
+    }
+
+    if (trailerUrl) {
+        // Jikan API 预告片处理
+        const trailerElement = document.createElement('div');
+        trailerElement.className = 'trailer-content';
+        trailerElement.innerHTML = `
+            <div class="trailer-actions d-flex flex-wrap gap-2">
+                <a href="${trailerUrl}" 
+                   target="_blank" 
+                   class="btn btn-danger">
+                    <i class="bi bi-play-btn"></i> 观看预告片
+                </a>
+                <button id="youtube-bilibili-btn" class="btn btn-primary">
+                    <i class="bi bi-play-btn"></i> 在B站上观看
+                </button>
+            </div>
+        `;
+
+        trailerContainer.appendChild(trailerElement);
+
+        // 添加B站跳转功能
+        const bilibiliBtn = trailerElement.querySelector('#youtube-bilibili-btn');
+        if (bilibiliBtn) {
+            bilibiliBtn.addEventListener('click', () => {
+                // 使用更广泛的搜索关键词提高成功率
+                const searchTerms = [
+                    anime.title,
+                    anime.title_english,
+                    anime.title_japanese,
+                    anime.name
+                ].filter(term => term).slice(0, 2); // 只取前两个非空的搜索词
+
+                const searchQuery = encodeURIComponent(searchTerms.join(' '));
+                const bilibiliSearchUrl = `https://search.bilibili.com/bangumi?keyword=${searchQuery}`;
+                window.open(bilibiliSearchUrl, '_blank');
+            });
+        }
+    } else if (trailerId) {
+        // AniList API 预告片处理
         const trailerElement = document.createElement('div');
         trailerElement.className = 'trailer-content';
         trailerElement.innerHTML = `
             <div class="video-container mb-3">
                 <iframe 
-                    src="https://www.youtube.com/embed/${anime.trailer.id}" 
+                    src="https://www.youtube.com/embed/${trailerId}" 
                     title="${anime.title} 预告片" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -283,7 +527,7 @@ function renderTrailer(anime) {
                 </iframe>
             </div>
             <div class="trailer-actions d-flex flex-wrap gap-2">
-                <a href="https://www.youtube.com/watch?v=${anime.trailer.id}" 
+                <a href="https://www.youtube.com/watch?v=${trailerId}" 
                    target="_blank" 
                    class="btn btn-danger">
                     <i class="bi bi-youtube"></i> 在YouTube上观看
@@ -300,12 +544,69 @@ function renderTrailer(anime) {
         const bilibiliBtn = trailerElement.querySelector('#youtube-bilibili-btn');
         if (bilibiliBtn) {
             bilibiliBtn.addEventListener('click', () => {
-                const searchQuery = encodeURIComponent(anime.title || anime.title_english || anime.title_japanese);
+                // 使用更广泛的搜索关键词提高成功率
+                const searchTerms = [
+                    anime.title,
+                    anime.title_english,
+                    anime.title_japanese,
+                    anime.name
+                ].filter(term => term).slice(0, 2); // 只取前两个非空的搜索词
+
+                const searchQuery = encodeURIComponent(searchTerms.join(' '));
                 const bilibiliSearchUrl = `https://search.bilibili.com/bangumi?keyword=${searchQuery}`;
                 window.open(bilibiliSearchUrl, '_blank');
             });
         }
     } else {
-        trailerContainer.innerHTML = '<p class="text-muted">暂无预告片信息</p>';
+        // 尝试通过标题搜索预告片
+        const trailerElement = document.createElement('div');
+        trailerElement.className = 'trailer-content';
+        trailerElement.innerHTML = `
+            <div class="trailer-actions d-flex flex-wrap gap-2">
+                <button id="search-trailer-btn" class="btn btn-info">
+                    <i class="bi bi-search"></i> 搜索预告片
+                </button>
+                <button id="search-bilibili-btn" class="btn btn-primary">
+                    <i class="bi bi-play-btn"></i> 在B站搜索
+                </button>
+            </div>
+        `;
+
+        trailerContainer.appendChild(trailerElement);
+
+        // 添加搜索预告片功能
+        const searchTrailerBtn = trailerElement.querySelector('#search-trailer-btn');
+        if (searchTrailerBtn) {
+            searchTrailerBtn.addEventListener('click', () => {
+                // 使用多个关键词搜索YouTube
+                const searchTerms = [
+                    anime.title,
+                    anime.title_english,
+                    anime.title_japanese
+                ].filter(term => term);
+
+                // 创建更有效的搜索查询
+                const searchQuery = encodeURIComponent(searchTerms.join(' ') + ' anime trailer');
+                const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
+                window.open(youtubeSearchUrl, '_blank');
+            });
+        }
+
+        // 添加B站搜索功能
+        const searchBilibiliBtn = trailerElement.querySelector('#search-bilibili-btn');
+        if (searchBilibiliBtn) {
+            searchBilibiliBtn.addEventListener('click', () => {
+                // 使用多个关键词搜索B站
+                const searchTerms = [
+                    anime.title,
+                    anime.title_english,
+                    anime.title_japanese
+                ].filter(term => term);
+
+                const searchQuery = encodeURIComponent(searchTerms.join(' '));
+                const bilibiliSearchUrl = `https://search.bilibili.com/bangumi?keyword=${searchQuery}`;
+                window.open(bilibiliSearchUrl, '_blank');
+            });
+        }
     }
 }
