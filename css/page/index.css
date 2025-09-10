@@ -212,6 +212,52 @@
     }
 }
 
+/* 回到顶部按钮 */
+.back-to-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 80px;
+    /* 在音乐按钮的左边 */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: none;
+    /* 初始隐藏 */
+    align-items: center;
+    justify-content: center;
+}
+
+.back-to-top-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-hover);
+    background: var(--secondary-color);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+    }
+}
+
 /* 优化动漫卡片渲染性能 */
 .anime-card {
     will-change: transform, box-shadow;
