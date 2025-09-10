@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let currentQuery = '';
     let currentCategory = '';
     let currentStatus = '';
-    let currentSort = 'POPULARITY_DESC'; // 默认按流行度排序
+    let currentSort = 'popularity'; // Jikan API 默认按流行度排序
 
     // 等待API服务加载完成
     function waitForAPI(maxAttempts = 50) {
@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             let attempts = 0;
 
             function checkAPI() {
-                if (window.AnimeAPI) {
-                    resolve(window.AnimeAPI);
+                if (window.JikanAPI) {
+                    resolve(window.JikanAPI);
                 } else if (attempts >= maxAttempts) {
-                    reject(new Error('API服务未初始化'));
+                    reject(new Error('Jikan API服务未初始化'));
                 } else {
                     attempts++;
                     setTimeout(checkAPI, 100);
@@ -46,12 +46,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             await waitForAPI();
 
             // 检查API服务是否可用
-            if (!window.AnimeAPI) {
-                throw new Error('API服务未初始化');
+            if (!window.JikanAPI) {
+                throw new Error('Jikan API服务未初始化');
             }
-
-            // 设置使用AniList API
-            AnimeAPI.setProvider('anilist');
 
             // 检查URL参数
             const urlParams = new URLSearchParams(window.location.search);
@@ -136,18 +133,34 @@ document.addEventListener('DOMContentLoaded', async function () {
             // 构建参数
             const params = {
                 page: page,
-                perPage: 20,  // 每页20个动漫
-                sort: currentSort
+                limit: 20,  // 每页20个动漫
+                order_by: currentSort
             };
 
             // 添加搜索参数
             if (currentQuery) {
-                params.search = currentQuery;
+                // Jikan API 使用 q 参数进行搜索
+                const response = await JikanAPI.searchAnime(currentQuery, { page, limit: 20 });
+                const { data: anime, pagination: paginationInfo } = response;
+
+                // 更新分页信息
+                if (paginationInfo) {
+                    currentPage = paginationInfo.current_page || page;
+                    totalPages = Math.min(paginationInfo.last_visible_page || 1, 100); // 最多显示100页
+                    totalItems = paginationInfo.items?.total || 0;
+                }
+
+                // 渲染动漫列表
+                renderAnimeList(anime);
+
+                // 渲染分页
+                renderPagination();
+                return;
             }
 
-            // 添加分类参数
+            // 添加分类参数 (Jikan API 中是 genre)
             if (currentCategory) {
-                params.genre = currentCategory;
+                params.genres = currentCategory;
             }
 
             // 添加状态参数
@@ -156,13 +169,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             // 获取数据
-            const response = await AnimeAPI.getAnimeList(params);
-            const { anime, pagination: paginationInfo } = response;
+            const response = await JikanAPI.getAnimeList(params);
+            const { data: anime, pagination: paginationInfo } = response;
 
             // 更新分页信息
             if (paginationInfo) {
                 currentPage = paginationInfo.current_page || page;
-                totalPages = Math.min(paginationInfo.last_page || 1, 100); // 最多显示100页
+                totalPages = Math.min(paginationInfo.last_visible_page || 1, 100); // 最多显示100页
                 totalItems = paginationInfo.items?.total || 0;
             }
 
@@ -234,34 +247,33 @@ document.addEventListener('DOMContentLoaded', async function () {
         const col = document.createElement('div');
         col.className = 'col-md-6 col-lg-4 col-xl-3 mb-4';
 
-        // 使用较小的图片以提高加载速度
+        // 使用较小的图片以提高加载速度 (Jikan API 图片结构不同)
         const imageUrl = anime.images?.jpg?.image_url ||
             anime.images?.jpg?.large_image_url ||
             'assets/images/poster/default.jpg';
 
-        const score = anime.score ? (anime.score / 10).toFixed(1) : 'N/A'; // AniList评分是100分制
+        // Jikan API 评分是10分制
+        const score = anime.score ? anime.score.toFixed(1) : 'N/A';
         const episodes = anime.episodes || '?';
         const type = anime.type || '未知';
-        const year = anime.year || '年份未知';
+        const year = anime.year || anime.aired?.prop?.from?.year || '年份未知';
 
         // 中文化类型显示
         const typeMap = {
             'TV': 'TV动画',
             'OVA': 'OVA',
             'ONA': 'ONA',
-            'MOVIE': '剧场版',
-            'SPECIAL': '特别篇',
-            'MUSIC': '音乐'
+            'Movie': '剧场版',
+            'Special': '特别篇',
+            'Music': '音乐'
         };
         const displayType = typeMap[type] || type;
 
         // 中文化状态显示
         const statusMap = {
-            'FINISHED': '已完结',
-            'RELEASING': '连载中',
-            'NOT_YET_RELEASED': '未播出',
-            'CANCELLED': '已取消',
-            'HIATUS': '休止中'
+            'Finished Airing': '已完结',
+            'Currently Airing': '连载中',
+            'Not yet aired': '未播出'
         };
         const displayStatus = statusMap[anime.status] || anime.status || '未知';
 
