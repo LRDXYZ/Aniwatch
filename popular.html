@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>热门推荐 - AniWatch</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/page/list.css">
+</head>
+
+<body>
+    <div class="wrapper d-flex">
+        <!-- 左侧导航栏 -->
+        <nav class="sidebar bg-dark text-white">
+            <div class="sidebar-header p-3 border-bottom border-secondary">
+                <h4 class="m-0">
+                    <i class="bi bi-play-btn-fill me-2"></i>AniWatch
+                </h4>
+            </div>
+            <div class="sidebar-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-house me-2"></i><span>首页</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html">
+                            <i class="bi bi-list-ul me-2"></i><span>动漫列表</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?category=tv">
+                            <i class="bi bi-tv me-2"></i><span>TV动画</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?category=movie">
+                            <i class="bi bi-film me-2"></i><span>剧场动画</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="detail.html?id=1">
+                            <i class="bi bi-star me-2"></i><span>热门推荐</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="latest.html">
+                            <i class="bi bi-clock-history me-2"></i><span>最新更新</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="popular.html">
+                            <i class="bi bi-fire me-2"></i><span>今日爆火</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">
+                            <i class="bi bi-info-circle me-2"></i><span>关于我们</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- 侧边栏切换按钮 -->
+        <button class="sidebar-toggle">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <!-- 主内容区域 -->
+        <div class="main-content flex-grow-1">
+            <!-- 顶部导航栏 -->
+            <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <!-- 搜索框 -->
+                        <form class="d-flex ms-auto me-3">
+                            <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search">
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+
+                        <!-- 登录功能 -->
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="login.html">
+                                    <i class="bi bi-person me-1"></i>登录
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="main">
+                <!-- 热门推荐区域 -->
+                <section class="popular py-5">
+                    <div class="container">
+                        <h2 class="text-center mb-5 fw-bold">
+                            <i class="bi bi-star-fill text-warning me-2"></i>今日爆火
+                        </h2>
+                        <div class="row g-4" id="popular-grid">
+                            <!-- 动态渲染区域 -->
+                            <div class="col-12 text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">加载中...</span>
+                                </div>
+                                <p class="mt-2 text-muted">正在加载热门动漫...</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <nav aria-label="分页导航" id="pagination-container" style="display: none;">
+                                    <ul class="pagination justify-content-center" id="pagination">
+                                        <!-- 分页控件将在这里动态生成 -->
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="footer py-4 bg-dark text-light">
+                <div class="container text-center">
+                    <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/api/anilist-service.js"></script>
+    <script src="js/api/jikan-service.js"></script>
+    <script src="js/api/anime-service.js"></script>
+    <script src="js/page/list.js"></script>
+    <script src="js/sidebar.js"></script>
+
+    <script>
+        // 修改页面加载后的行为，只加载热门动漫
+        document.addEventListener('DOMContentLoaded', async function () {
+            // 等待API服务加载完成
+            function waitForAPI(maxAttempts = 50) {
+                return new Promise((resolve, reject) => {
+                    let attempts = 0;
+
+                    function checkAPI() {
+                        if (window.AnimeAPI) {
+                            resolve(window.AnimeAPI);
+                        } else if (attempts >= maxAttempts) {
+                            reject(new Error('API服务未初始化'));
+                        } else {
+                            attempts++;
+                            setTimeout(checkAPI, 100);
+                        }
+                    }
+
+                    checkAPI();
+                });
+            }
+
+            try {
+                // 等待API服务加载完成
+                await waitForAPI();
+
+                // 检查API服务是否可用
+                if (!window.AnimeAPI) {
+                    throw new Error('API服务未初始化');
+                }
+
+                // 设置使用AniList API
+                AnimeAPI.setProvider('anilist');
+
+                // 加载热门动漫（按评分排序）
+                const response = await AnimeAPI.getAnimeList({
+                    page: 1,
+                    perPage: 20,
+                    sort: 'SCORE_DESC'
+                });
+
+                const { anime } = response;
+
+                // 渲染热门动漫列表
+                renderPopularAnime(anime);
+
+            } catch (error) {
+                console.error('加载热门动漫失败:', error);
+                document.getElementById('popular-grid').innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <p class="mb-2">加载热门动漫失败: ${error.message || '未知错误'}</p>
+                            <button class="btn btn-primary btn-sm" onclick="location.reload()">重新加载</button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // 渲染热门动漫列表
+        function renderPopularAnime(animeList) {
+            const animeGrid = document.getElementById('popular-grid');
+
+            // 清空现有内容
+            animeGrid.innerHTML = '';
+
+            if (!animeList || animeList.length === 0) {
+                animeGrid.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-search display-1 text-muted"></i>
+                        <h4 class="mt-3 text-muted">暂无热门动漫</h4>
+                        <p class="text-muted">请稍后重试</p>
+                    </div>
+                `;
+                return;
+            }
+
+            animeList.forEach(anime => {
+                const animeCard = createAnimeCard(anime);
+                animeGrid.appendChild(animeCard);
+            });
+        }
+
+        // 创建动漫卡片
+        function createAnimeCard(anime) {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4 col-xl-3 mb-4';
+
+            // 使用较小的图片以提高加载速度
+            const imageUrl = anime.images?.jpg?.image_url ||
+                anime.images?.jpg?.large_image_url ||
+                'assets/images/poster/default.jpg';
+
+            const score = anime.score ? (anime.score / 10).toFixed(1) : 'N/A'; // AniList评分是100分制
+            const episodes = anime.episodes || '?';
+            const type = anime.type || '未知';
+            const year = anime.year || '年份未知';
+
+            // 中文化类型显示
+            const typeMap = {
+                'TV': 'TV动画',
+                'OVA': 'OVA',
+                'ONA': 'ONA',
+                'MOVIE': '剧场版',
+                'SPECIAL': '特别篇',
+                'MUSIC': '音乐'
+            };
+            const displayType = typeMap[type] || type;
+
+            col.innerHTML = `
+                <div class="card h-100 anime-card shadow-sm" data-mal-id="${anime.mal_id}">
+                    <div class="card-image-container position-relative">
+                        <img src="${imageUrl}" 
+                             class="card-img-top" 
+                             alt="${anime.title}"
+                             loading="lazy"
+                             onerror="this.src='assets/images/poster/default.jpg'">
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-primary">${displayType}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h6 class="card-title mb-2 text-truncate" title="${anime.title}">
+                            ${anime.title}
+                        </h6>
+                        
+                        <div class="anime-info mb-2">
+                            <small class="text-muted">
+                                <i class="bi bi-collection-play"></i> ${episodes}集
+                                <span class="mx-1">•</span>
+                                <i class="bi bi-star-fill text-warning"></i> ${score}
+                            </small>
+                        </div>
+                        
+                        <p class="card-text anime-description small text-muted line-clamp-2">
+                            ${anime.synopsis ? anime.synopsis.substring(0, 80) + '...' : '暂无简介'}
+                        </p>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                ${year}
+                            </small>
+                            <button class="btn btn-primary btn-sm view-detail-btn" 
+                                    onclick="viewAnimeDetail(${anime.mal_id})">
+                                查看详情
+                                <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加悬停效果
+            const card = col.querySelector('.anime-card');
+            card.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            });
+
+            return col;
+        }
+
+        // 查看动漫详情
+        function viewAnimeDetail(malId) {
+            // 保存背景音乐状态
+            CommonUtils.BackgroundMusicManager.savePlaybackState();
+            window.location.href = `detail.html?mal_id=${malId}`;
+        }
+    </script>
+</body>
+
+</html>
