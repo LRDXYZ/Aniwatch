@@ -323,7 +323,95 @@ const BackgroundMusicManager = {
         this.savePlaybackState();
     }
 };
+// 用户状态管理器
+const UserAuthManager = {
+    // 检查用户是否已登录
+    isAuthenticated() {
+        try {
+            const currentUser = localStorage.getItem('currentUser');
+            return currentUser && JSON.parse(currentUser).loggedIn;
+        } catch (error) {
+            console.error('检查用户登录状态失败:', error);
+            return false;
+        }
+    },
 
+    // 获取当前用户信息
+    getCurrentUser() {
+        try {
+            const currentUser = localStorage.getItem('currentUser');
+            return currentUser ? JSON.parse(currentUser) : null;
+        } catch (error) {
+            console.error('获取用户信息失败:', error);
+            return null;
+        }
+    },
+
+    // 退出登录
+    logout() {
+        try {
+            // 清除用户登录状态
+            localStorage.removeItem('currentUser');
+            CommonUtils.removeStorage('rememberedUser');
+
+            // 重定向到登录页面
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('退出登录失败:', error);
+        }
+    },
+
+    // 更新导航栏用户状态显示
+    updateNavbarAuthStatus() {
+        // 查找所有页面中的用户导航项
+        const userNavItems = document.querySelectorAll('.navbar-nav .nav-item:last-child');
+
+        userNavItems.forEach(navItem => {
+            if (this.isAuthenticated()) {
+                const user = this.getCurrentUser();
+                if (user && user.username) {
+                    navItem.innerHTML = `
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person me-1"></i>欢迎, ${user.username}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-person-circle me-2"></i>个人中心</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-gear me-2"></i>设置</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" id="logout-btn"><i class="bi bi-box-arrow-right me-2"></i>退出登录</a></li>
+                            </ul>
+                        </div>
+                    `;
+
+                    // 绑定退出登录事件
+                    const logoutBtn = navItem.querySelector('#logout-btn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            this.logout();
+                        });
+                    }
+                }
+            } else {
+                // 未登录状态显示登录链接
+                navItem.innerHTML = `
+                    <a class="nav-link" href="login.html">
+                        <i class="bi bi-person me-1"></i>登录
+                    </a>
+                `;
+            }
+        });
+    }
+};
+
+// 页面加载完成后初始化用户状态
+document.addEventListener('DOMContentLoaded', function () {
+    // 延迟执行以确保DOM完全加载
+    setTimeout(() => {
+        UserAuthManager.updateNavbarAuthStatus();
+    }, 100);
+});
 // 导出所有函数
 window.CommonUtils = {
     // 存储相关
@@ -351,5 +439,8 @@ window.CommonUtils = {
     apiFetch,
 
     // 背景音乐管理
-    BackgroundMusicManager
+    BackgroundMusicManager,
+
+    // 用户认证管理
+    UserAuthManager
 };

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,161 +13,89 @@
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/page/login.css">
 </head>
+
 <body>
-    <div class="wrapper d-flex">
-        <!-- 左侧导航栏 -->
-        <nav class="sidebar bg-dark text-white">
-            <div class="sidebar-header p-3 border-bottom border-secondary">
-                <h4 class="m-0">
-                    <i class="bi bi-play-btn-fill me-2"></i>AniWatch
-                </h4>
-            </div>
-            <div class="sidebar-content">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">
-                            <i class="bi bi-house me-2"></i><span>首页</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="list.html">
-                            <i class="bi bi-list-ul me-2"></i><span>动漫列表</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="list.html?category=tv">
-                            <i class="bi bi-tv me-2"></i><span>TV动画</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="list.html?category=movie">
-                            <i class="bi bi-film me-2"></i><span>剧场动画</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="detail.html?id=1">
-                            <i class="bi bi-star me-2"></i><span>热门推荐</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="list.html?sort=latest">
-                            <i class="bi bi-clock-history me-2"></i><span>最新更新</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="list.html?sort=trending">
-                            <i class="bi bi-fire me-2"></i><span>今日爆火</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.html">
-                            <i class="bi bi-info-circle me-2"></i><span>关于我们</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+    <!-- 简化版顶部导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-play-btn-fill me-2"></i>AniWatch
+            </a>
+        </div>
+    </nav>
 
-        <!-- 侧边栏切换按钮 -->
-        <button class="sidebar-toggle">
-            <i class="bi bi-chevron-left"></i>
-        </button>
-
-        <!-- 主内容区域 -->
-        <div class="main-content flex-grow-1">
-            <!-- 顶部导航栏 -->
-            <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
-                <div class="container-fluid">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <!-- 搜索框 -->
-                        <form class="d-flex ms-auto me-3">
-                            <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search">
-                            <button class="btn btn-outline-light" type="submit">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </form>
-                        
-                        <!-- 登录功能 -->
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link" href="login.html">
-                                    <i class="bi bi-person me-1"></i>登录
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-             <main class="main">
-                <section class="login-section py-4 py-md-5">
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
-                                <div class="card shadow-lg">
-                                    <div class="card-body p-4 p-sm-5">
-                                        <div class="text-center mb-4">
-                                            <div class="mb-3">
-                                                <i class="bi bi-person-plus-fill" style="font-size: 3rem; color: var(--primary-color);"></i>
-                                            </div>
-                                            <h2 class="fw-bold">
-                                                用户注册
-                                            </h2>
-                                            <p class="text-muted">加入 AniWatch 大家庭</p>
+    <!-- 主内容区域 -->
+    <div class="main-content flex-grow-1">
+        <main class="main">
+            <section class="login-section py-4 py-md-5">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                            <div class="card shadow-lg">
+                                <div class="card-body p-4 p-sm-5">
+                                    <div class="text-center mb-4">
+                                        <div class="mb-3">
+                                            <i class="bi bi-person-plus-fill"
+                                                style="font-size: 3rem; color: var(--primary-color);"></i>
                                         </div>
-                                        <form id="register-form">
-                                            <div class="mb-3">
-                                                <label for="reg-username" class="form-label">用户名</label>
-                                                <input type="text" class="form-control form-control-lg" id="reg-username" name="username" required placeholder="请输入用户名">
-                                                <div class="error-message" id="reg-username-error"></div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="reg-phone" class="form-label">手机号</label>
-                                                <input type="tel" class="form-control form-control-lg" id="reg-phone" name="phone" required placeholder="请输入手机号" pattern="[0-9]{11}">
-                                                <div class="error-message" id="reg-phone-error"></div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="reg-password" class="form-label">密码</label>
-                                                <input type="password" class="form-control form-control-lg" id="reg-password" name="password" required placeholder="请输入密码（至少6位）" minlength="6">
-                                                <div class="password-strength mt-2"></div>
-                                                <div class="strength-text"></div>
-                                                <div class="error-message" id="reg-password-error"></div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="reg-confirm" class="form-label">确认密码</label>
-                                                <input type="password" class="form-control form-control-lg" id="reg-confirm" name="confirm" required placeholder="请再次输入密码">
-                                                <div class="error-message" id="reg-confirm-error"></div>
-                                            </div>
-                                            <div class="error-message" id="general-error"></div>
-                                            <div class="d-grid">
-                                                <button type="submit" class="btn btn-primary btn-lg mb-3">
-                                                    <i class="bi bi-person-plus me-2"></i>注册
-                                                </button>
-                                            </div>
-                                            <div class="text-center">
-                                                <p class="mb-0">已有账号？
-                                                    <a href="login.html" class="text-decoration-none">立即登录</a>
-                                                </p>
-                                            </div>
-                                        </form>
+                                        <h2 class="fw-bold">
+                                            用户注册
+                                        </h2>
+                                        <p class="text-muted">加入 AniWatch 大家庭</p>
                                     </div>
+                                    <form id="register-form">
+                                        <div class="mb-3">
+                                            <label for="reg-username" class="form-label">用户名</label>
+                                            <input type="text" class="form-control form-control-lg" id="reg-username"
+                                                name="username" required placeholder="请输入用户名">
+                                            <div class="error-message" id="reg-username-error"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="reg-phone" class="form-label">手机号</label>
+                                            <input type="tel" class="form-control form-control-lg" id="reg-phone"
+                                                name="phone" required placeholder="请输入手机号" pattern="[0-9]{11}">
+                                            <div class="error-message" id="reg-phone-error"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="reg-password" class="form-label">密码</label>
+                                            <input type="password" class="form-control form-control-lg"
+                                                id="reg-password" name="password" required placeholder="请输入密码（至少6位）"
+                                                minlength="6">
+                                            <div class="password-strength mt-2"></div>
+                                            <div class="strength-text"></div>
+                                            <div class="error-message" id="reg-password-error"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="reg-confirm" class="form-label">确认密码</label>
+                                            <input type="password" class="form-control form-control-lg" id="reg-confirm"
+                                                name="confirm" required placeholder="请再次输入密码">
+                                            <div class="error-message" id="reg-confirm-error"></div>
+                                        </div>
+                                        <div class="error-message" id="general-error"></div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg mb-3">
+                                                <i class="bi bi-person-plus me-2"></i>注册
+                                            </button>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="mb-0">已有账号？
+                                                <a href="login.html" class="text-decoration-none">立即登录</a>
+                                            </p>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
-            </main>
-
-            <footer class="footer py-4 bg-dark text-light">
-                <div class="container text-center">
-                    <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
                 </div>
-            </footer>
-        </div>
+            </section>
+        </main>
+
+        <footer class="footer py-4 bg-dark text-light">
+            <div class="container text-center">
+                <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+            </div>
+        </footer>
     </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
@@ -174,6 +103,6 @@
     <script src="js/common.js"></script>
     <script src="js/dom.js"></script>
     <script src="js/page/register.js"></script>
-    <script src="js/sidebar.js"></script>
 </body>
+
 </html>

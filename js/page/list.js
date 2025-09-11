@@ -2,7 +2,10 @@
 document.addEventListener('DOMContentLoaded', async function () {
     // 初始化背景音乐管理器
     CommonUtils.BackgroundMusicManager.init();
-    
+
+    // 更新用户认证状态显示
+    CommonUtils.UserAuthManager.updateNavbarAuthStatus();
+
     // 获取DOM元素
     const searchForm = document.getElementById('search-form');
     const searchInput = document.getElementById('search-input');

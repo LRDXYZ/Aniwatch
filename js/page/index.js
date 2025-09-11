@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 初始化背景音乐管理器
     CommonUtils.BackgroundMusicManager.init();
 
+    // 更新用户认证状态显示
+    CommonUtils.UserAuthManager.updateNavbarAuthStatus();
+
     // 等待API服务加载完成
     function waitForAPI(maxAttempts = 50) {
         return new Promise((resolve, reject) => {

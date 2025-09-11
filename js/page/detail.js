@@ -4,6 +4,9 @@ window.addEventListener('DOMContentLoaded', async function () {
     // 初始化背景音乐管理器
     CommonUtils.BackgroundMusicManager.init();
 
+    // 更新用户认证状态显示
+    CommonUtils.UserAuthManager.updateNavbarAuthStatus();
+
     // 检查必要的API是否已加载
     if (typeof window.AnimeAPI === 'undefined') {
         console.error('API 未定义，请检查脚本加载顺序');
@@ -303,7 +306,7 @@ async function renderAnimeDetail(anime) {
 
                 // 渲染预告片
                 renderTrailer(anime);
-                
+
                 resolve();
             } catch (error) {
                 console.error('渲染动漫详情失败:', error);
@@ -335,7 +338,7 @@ async function renderEpisodes(episodes) {
 
                 // 使用文档片段优化DOM操作
                 const fragment = document.createDocumentFragment();
-                
+
                 episodes.forEach(episode => {
                     const episodeElement = document.createElement('div');
                     episodeElement.className = 'episode-item';
@@ -394,7 +397,7 @@ async function renderEpisodes(episodes) {
                     `;
                     fragment.appendChild(episodeElement);
                 });
-                
+
                 episodeListElement.appendChild(fragment);
                 resolve();
             } catch (error) {
@@ -458,7 +461,7 @@ function setupBilibiliRedirect(anime) {
     bilibiliBtn.addEventListener('click', () => {
         // 保存背景音乐状态
         CommonUtils.BackgroundMusicManager.savePlaybackState();
-        
+
         // 使用更广泛的搜索关键词提高成功率
         const searchTerms = [
             anime.title,
@@ -525,7 +528,7 @@ function renderTrailer(anime) {
             bilibiliBtn.addEventListener('click', () => {
                 // 保存背景音乐状态
                 CommonUtils.BackgroundMusicManager.savePlaybackState();
-                
+
                 // 使用更广泛的搜索关键词提高成功率
                 const searchTerms = [
                     anime.title,
@@ -574,7 +577,7 @@ function renderTrailer(anime) {
             bilibiliBtn.addEventListener('click', () => {
                 // 保存背景音乐状态
                 CommonUtils.BackgroundMusicManager.savePlaybackState();
-                
+
                 // 使用更广泛的搜索关键词提高成功率
                 const searchTerms = [
                     anime.title,
@@ -611,7 +614,7 @@ function renderTrailer(anime) {
             searchTrailerBtn.addEventListener('click', () => {
                 // 保存背景音乐状态
                 CommonUtils.BackgroundMusicManager.savePlaybackState();
-                
+
                 // 使用多个关键词搜索YouTube
                 const searchTerms = [
                     anime.title,
@@ -632,7 +635,7 @@ function renderTrailer(anime) {
             searchBilibiliBtn.addEventListener('click', () => {
                 // 保存背景音乐状态
                 CommonUtils.BackgroundMusicManager.savePlaybackState();
-                
+
                 // 使用多个关键词搜索B站
                 const searchTerms = [
                     anime.title,
