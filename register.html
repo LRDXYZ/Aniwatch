@@ -102,16 +102,22 @@
                 </div>
             </nav>
 
-            <main class="main">
-                <section class="login-section py-5">
+             <main class="main">
+                <section class="login-section py-4 py-md-5">
                     <div class="container">
                         <div class="row justify-content-center">
-                            <div class="col-md-6 col-lg-5">
+                            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
                                 <div class="card shadow-lg">
-                                    <div class="card-body p-5">
-                                        <h2 class="text-center mb-4 fw-bold">
-                                            <i class="bi bi-person-plus-fill me-2"></i>用户注册
-                                        </h2>
+                                    <div class="card-body p-4 p-sm-5">
+                                        <div class="text-center mb-4">
+                                            <div class="mb-3">
+                                                <i class="bi bi-person-plus-fill" style="font-size: 3rem; color: var(--primary-color);"></i>
+                                            </div>
+                                            <h2 class="fw-bold">
+                                                用户注册
+                                            </h2>
+                                            <p class="text-muted">加入 AniWatch 大家庭</p>
+                                        </div>
                                         <form id="register-form">
                                             <div class="mb-3">
                                                 <label for="reg-username" class="form-label">用户名</label>
@@ -136,9 +142,11 @@
                                                 <div class="error-message" id="reg-confirm-error"></div>
                                             </div>
                                             <div class="error-message" id="general-error"></div>
-                                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-                                                <i class="bi bi-person-plus me-2"></i>注册
-                                            </button>
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-primary btn-lg mb-3">
+                                                    <i class="bi bi-person-plus me-2"></i>注册
+                                                </button>
+                                            </div>
                                             <div class="text-center">
                                                 <p class="mb-0">已有账号？
                                                     <a href="login.html" class="text-decoration-none">立即登录</a>
