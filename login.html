@@ -13,77 +13,161 @@
     <link rel="stylesheet" href="css/page/login.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">
-                <i class="bi bi-play-btn-fill me-2"></i>AniWatch
-            </a>
-        </div>
-    </nav>
+    <div class="wrapper d-flex">
+        <!-- 左侧导航栏 -->
+        <nav class="sidebar bg-dark text-white">
+            <div class="sidebar-header p-3 border-bottom border-secondary">
+                <h4 class="m-0">
+                    <i class="bi bi-play-btn-fill me-2"></i>AniWatch
+                </h4>
+            </div>
+            <div class="sidebar-content">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-house me-2"></i><span>首页</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html">
+                            <i class="bi bi-list-ul me-2"></i><span>动漫列表</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?category=tv">
+                            <i class="bi bi-tv me-2"></i><span>TV动画</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?category=movie">
+                            <i class="bi bi-film me-2"></i><span>剧场动画</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="detail.html?id=1">
+                            <i class="bi bi-star me-2"></i><span>热门推荐</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?sort=latest">
+                            <i class="bi bi-clock-history me-2"></i><span>最新更新</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?sort=trending">
+                            <i class="bi bi-fire me-2"></i><span>今日爆火</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">
+                            <i class="bi bi-info-circle me-2"></i><span>关于我们</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-    <main class="main">
-        <section class="login-section py-5">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-6 col-lg-5">
-                        <div class="card shadow-lg">
-                            <div class="card-body p-5">
-                                <h2 class="text-center mb-4 fw-bold">
-                                    <i class="bi bi-person-circle me-2"></i>用户登录
-                                </h2>
-                                
-                                <form id="login-form">
-                                    <div class="mb-3">
-                                        <label for="username" class="form-label">用户名/手机号</label>
-                                        <input type="text" class="form-control form-control-lg" 
-                                               id="username" name="username" required 
-                                               placeholder="请输入用户名或手机号">
-                                        <div id="username-error" class="form-text text-danger"></div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">密码</label>
-                                        <input type="password" class="form-control form-control-lg" 
-                                               id="password" name="password" required 
-                                               placeholder="请输入密码">
-                                        <div id="password-error" class="form-text text-danger"></div>
-                                    </div>
+        <!-- 侧边栏切换按钮 -->
+        <button class="sidebar-toggle">
+            <i class="bi bi-chevron-left"></i>
+        </button>
 
-                                    <div class="mb-3 form-check">
-                                        <input type="checkbox" class="form-check-input" 
-                                               id="remember" name="remember">
-                                        <label class="form-check-label" for="remember">记住我</label>
-                                        <a href="#" class="float-end text-decoration-none">忘记密码？</a>
-                                    </div>
+        <!-- 主内容区域 -->
+        <div class="main-content flex-grow-1">
+            <!-- 顶部导航栏 -->
+            <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-                                        <i class="bi bi-box-arrow-in-right me-2"></i>登录
-                                    </button>
-                                    
-                                    <div class="text-center">
-                                        <p class="mb-0">还没有账号？
-                                            <a href="register.html" class="text-decoration-none">立即注册</a>
-                                        </p>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <!-- 搜索框 -->
+                        <form class="d-flex ms-auto me-3">
+                            <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search">
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+                        
+                        <!-- 登录功能 -->
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="login.html">
+                                    <i class="bi bi-person me-1"></i>登录
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="main">
+                <section class="login-section py-5">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-md-6 col-lg-5">
+                                <div class="card shadow-lg">
+                                    <div class="card-body p-5">
+                                        <h2 class="text-center mb-4 fw-bold">
+                                            <i class="bi bi-person-circle me-2"></i>用户登录
+                                        </h2>
+                                        
+                                        <form id="login-form">
+                                            <div class="mb-3">
+                                                <label for="username" class="form-label">用户名/手机号</label>
+                                                <input type="text" class="form-control form-control-lg" 
+                                                       id="username" name="username" required 
+                                                       placeholder="请输入用户名或手机号">
+                                                <div id="username-error" class="form-text text-danger"></div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="password" class="form-label">密码</label>
+                                                <input type="password" class="form-control form-control-lg" 
+                                                       id="password" name="password" required 
+                                                       placeholder="请输入密码">
+                                                <div id="password-error" class="form-text text-danger"></div>
+                                            </div>
+
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" 
+                                                       id="remember" name="remember">
+                                                <label class="form-check-label" for="remember">记住我</label>
+                                                <a href="#" class="float-end text-decoration-none">忘记密码？</a>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                                                <i class="bi bi-box-arrow-in-right me-2"></i>登录
+                                            </button>
+                                            
+                                            <div class="text-center">
+                                                <p class="mb-0">还没有账号？
+                                                    <a href="register.html" class="text-decoration-none">立即注册</a>
+                                                </p>
+                                            </div>
+                                        </form>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-    </main>
+                </section>
+            </main>
 
-    <footer class="footer py-4 bg-dark text-light">
-        <div class="container text-center">
-            <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+            <footer class="footer py-4 bg-dark text-light">
+                <div class="container text-center">
+                    <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+                </div>
+            </footer>
         </div>
-    </footer>
+    </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/common.js"></script>
     <script src="js/dom.js"></script>
     <script src="js/page/login.js"></script>
+    <script src="js/sidebar.js"></script>
 </body>
 </html>

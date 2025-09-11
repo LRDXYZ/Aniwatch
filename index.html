@@ -15,202 +15,241 @@
 </head>
 
 <body>
-    <!-- Bootstrap 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">
-                <i class="bi bi-play-btn-fill me-2"></i>AniWatch
-            </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+    <div class="wrapper d-flex">
+        <!-- 左侧导航栏 -->
+        <nav class="sidebar bg-dark text-white">
+            <div class="sidebar-header p-3 border-bottom border-secondary">
+                <h4 class="m-0">
+                    <i class="bi bi-play-btn-fill me-2"></i>AniWatch
+                </h4>
+            </div>
+            <div class="sidebar-content">
+                <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link active" href="index.html">
-                            <i class="bi bi-house me-1"></i>首页
+                            <i class="bi bi-house me-2"></i><span>首页</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="list.html">
-                            <i class="bi bi-list-ul me-1"></i>动漫列表
+                            <i class="bi bi-list-ul me-2"></i><span>动漫列表</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?category=tv">
+                            <i class="bi bi-tv me-2"></i><span>TV动画</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?category=movie">
+                            <i class="bi bi-film me-2"></i><span>剧场动画</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="detail.html?id=1">
-                            <i class="bi bi-star me-1"></i>热门推荐
+                            <i class="bi bi-star me-2"></i><span>热门推荐</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.html">
-                            <i class="bi bi-person me-1"></i>登录
+                        <a class="nav-link" href="list.html?sort=latest">
+                            <i class="bi bi-clock-history me-2"></i><span>最新更新</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html?sort=trending">
+                            <i class="bi bi-fire me-2"></i><span>今日爆火</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="about.html">
-                            <i class="bi bi-info-circle me-1"></i>关于我们
+                            <i class="bi bi-info-circle me-2"></i><span>关于我们</span>
                         </a>
                     </li>
                 </ul>
+            </div>
+        </nav>
 
-                <!-- 搜索框 -->
-                <form class="d-flex ms-3">
-                    <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">
-                        <i class="bi bi-search"></i>
+        <!-- 侧边栏切换按钮 -->
+        <button class="sidebar-toggle">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <!-- 主内容区域 -->
+        <div class="main-content flex-grow-1">
+            <!-- 顶部导航栏 -->
+            <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
                     </button>
-                </form>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Bootstrap 轮播图 -->
-    <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
-        </div>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <!-- 搜索框 -->
+                        <form class="d-flex ms-auto me-3">
+                            <input class="form-control me-2" type="search" placeholder="搜索动漫..." aria-label="Search">
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+                        
+                        <!-- 登录功能 -->
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="login.html">
+                                    <i class="bi bi-person me-1"></i>登录
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
 
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="carousel-banner banner-1">
-                    <div class="container">
-                        <div class="carousel-caption text-center">
-                            <h2>热门新番推荐</h2>
-                            <p>最新上架的精彩动漫，不容错过</p>
-                            <a href="list.html" class="btn btn-primary btn-lg">立即观看</a>
+            <!-- Bootstrap 轮播图 -->
+            <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
+                </div>
+
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="carousel-banner banner-1">
+                            <div class="container">
+                                <div class="carousel-caption text-center">
+                                    <h2>热门新番推荐</h2>
+                                    <p>最新上架的精彩动漫，不容错过</p>
+                                    <a href="list.html" class="btn btn-primary btn-lg">立即观看</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="carousel-banner banner-2">
+                            <div class="container">
+                                <div class="carousel-caption text-center">
+                                    <h2>经典动漫回顾</h2>
+                                    <p>重温那些年的感动与热血</p>
+                                    <a href="list.html" class="btn btn-secondary btn-lg">经典列表</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="carousel-banner banner-3">
+                            <div class="container">
+                                <div class="carousel-caption text-center">
+                                    <h2>独家动漫资源</h2>
+                                    <p>只有在这里才能看到的独家内容</p>
+                                    <a href="detail.html?id=1" class="btn btn-accent btn-lg">查看详情</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                    <span class="visually-hidden">上一个</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                    <span class="visually-hidden">下一个</span>
+                </button>
             </div>
 
-            <div class="carousel-item">
-                <div class="carousel-banner banner-2">
+            <main class="main">
+                <!-- 推荐动漫区域 -->
+                <section class="recommend py-5">
                     <div class="container">
-                        <div class="carousel-caption text-center">
-                            <h2>经典动漫回顾</h2>
-                            <p>重温那些年的感动与热血</p>
-                            <a href="list.html" class="btn btn-secondary btn-lg">经典列表</a>
+                        <h2 class="text-center mb-5 fw-bold">热门推荐</h2>
+                        <div class="row g-4" id="anime-grid">
+                            <!-- 动态渲染区域 -->
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <div class="carousel-item">
-                <div class="carousel-banner banner-3">
+                <!-- 最新更新区域 -->
+                <section class="latest py-5 bg-light">
                     <div class="container">
-                        <div class="carousel-caption text-center">
-                            <h2>独家动漫资源</h2>
-                            <p>只有在这里才能看到的独家内容</p>
-                            <a href="detail.html?id=1" class="btn btn-accent btn-lg">查看详情</a>
+                        <h2 class="text-center mb-5 fw-bold">最新更新</h2>
+                        <div class="row" id="latest-list">
+                            <!-- 动态渲染区域 -->
                         </div>
                     </div>
+                </section>
+            </main>
+
+            <!-- 背景音乐控制按钮 -->
+            <button id="music-control" class="music-control-btn">
+                <i class="bi bi-music-note-beamed"></i>
+            </button>
+
+            <!-- 背景音乐音频元素 -->
+            <audio id="background-music" loop>
+                <source src="assets/media/audio/background.mp3" type="audio/mpeg">
+                您的浏览器不支持音频播放。
+            </audio>
+
+            <!-- 回到顶部按钮 -->
+            <button id="back-to-top" class="back-to-top-btn">
+                <i class="bi bi-arrow-up"></i>
+            </button>
+            <!-- Bootstrap 底部 -->
+            <footer class="footer py-4 bg-dark text-light">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <h5 class="fw-bold">
+                                <i class="bi bi-play-btn-fill me-2"></i>AniWatch
+                            </h5>
+                            <p class="text-muted">致力于为动漫爱好者提供最好的观看体验</p>
+                        </div>
+
+                        <div class="col-md-2 mb-3">
+                            <h6>快速链接</h6>
+                            <ul class="list-unstyled">
+                                <li><a href="index.html" class="text-decoration-none text-muted">首页</a></li>
+                                <li><a href="list.html" class="text-decoration-none text-muted">动漫列表</a></li>
+                                <li><a href="about.html" class="text-decoration-none text-muted">关于我们</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <h6>分类</h6>
+                            <ul class="list-unstyled">
+                                <li><a href="list.html?category=action" class="text-decoration-none text-muted">动作</a></li>
+                                <li><a href="list.html?category=comedy" class="text-decoration-none text-muted">喜剧</a></li>
+                                <li><a href="list.html?category=drama" class="text-decoration-none text-muted">剧情</a></li>
+                                <li><a href="list.html?category=fantasy" class="text-decoration-none text-muted">奇幻</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <h6>联系我们</h6>
+                            <ul class="list-unstyled">
+                                <li class="text-muted">邮箱: contact@aniwatch.com</li>
+                                <li class="text-muted">客服: 400-123-4567</li>
+                            </ul>
+                            <div class="social-links">
+                                <a href="#" class="text-decoration-none text-muted me-2"><i class="bi bi-wechat"></i></a>
+                                <a href="#" class="text-decoration-none text-muted me-2"><i class="bi bi-weibo"></i></a>
+                                <a href="#" class="text-decoration-none text-muted"><i class="bi bi-qq"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
+                    </div>
                 </div>
-            </div>
+            </footer>
         </div>
-
-        <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-            <span class="visually-hidden">上一个</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-            <span class="visually-hidden">下一个</span>
-        </button>
     </div>
-
-    <main class="main">
-        <!-- 推荐动漫区域 -->
-        <section class="recommend py-5">
-            <div class="container">
-                <h2 class="text-center mb-5 fw-bold">热门推荐</h2>
-                <div class="row g-4" id="anime-grid">
-                    <!-- 动态渲染区域 -->
-                </div>
-            </div>
-        </section>
-
-        <!-- 最新更新区域 -->
-        <section class="latest py-5 bg-light">
-            <div class="container">
-                <h2 class="text-center mb-5 fw-bold">最新更新</h2>
-                <div class="row" id="latest-list">
-                    <!-- 动态渲染区域 -->
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- 背景音乐控制按钮 -->
-    <button id="music-control" class="music-control-btn">
-        <i class="bi bi-music-note-beamed"></i>
-    </button>
-
-    <!-- 背景音乐音频元素 -->
-    <audio id="background-music" loop>
-        <source src="assets/media/audio/background.mp3" type="audio/mpeg">
-        您的浏览器不支持音频播放。
-    </audio>
-
-    <!-- 回到顶部按钮 -->
-    <button id="back-to-top" class="back-to-top-btn">
-        <i class="bi bi-arrow-up"></i>
-    </button>
-    <!-- Bootstrap 底部 -->
-    <footer class="footer py-4 bg-dark text-light">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h5 class="fw-bold">
-                        <i class="bi bi-play-btn-fill me-2"></i>AniWatch
-                    </h5>
-                    <p class="text-muted">致力于为动漫爱好者提供最好的观看体验</p>
-                </div>
-
-                <div class="col-md-2 mb-3">
-                    <h6>快速链接</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="index.html" class="text-decoration-none text-muted">首页</a></li>
-                        <li><a href="list.html" class="text-decoration-none text-muted">动漫列表</a></li>
-                        <li><a href="about.html" class="text-decoration-none text-muted">关于我们</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <h6>分类</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="list.html?category=action" class="text-decoration-none text-muted">动作</a></li>
-                        <li><a href="list.html?category=comedy" class="text-decoration-none text-muted">喜剧</a></li>
-                        <li><a href="list.html?category=drama" class="text-decoration-none text-muted">剧情</a></li>
-                        <li><a href="list.html?category=fantasy" class="text-decoration-none text-muted">奇幻</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <h6>联系我们</h6>
-                    <ul class="list-unstyled">
-                        <li class="text-muted">邮箱: contact@aniwatch.com</li>
-                        <li class="text-muted">客服: 400-123-4567</li>
-                    </ul>
-                    <div class="social-links">
-                        <a href="#" class="text-decoration-none text-muted me-2"><i class="bi bi-wechat"></i></a>
-                        <a href="#" class="text-decoration-none text-muted me-2"><i class="bi bi-weibo"></i></a>
-                        <a href="#" class="text-decoration-none text-muted"><i class="bi bi-qq"></i></a>
-                    </div>
-                </div>
-            </div>
-
-            <hr class="my-4">
-
-            <div class="text-center">
-                <p class="mb-0 text-muted">&copy; 2025 AniWatch 动漫观看网站. All Rights Reserved.</p>
-            </div>
-        </div>
-    </footer>
-
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -220,6 +259,7 @@
     <script src="js/api/jikan-service.js"></script>
     <script src="js/api/anime-service.js"></script>
     <script src="js/page/index.js"></script>
+    <script src="js/sidebar.js"></script>
 </body>
 
 </html>

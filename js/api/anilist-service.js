@@ -1,28 +1,19 @@
 // js/api/anilist-service.js
 class AniListService {
     constructor() {
-        this.baseURL = 'https://graphql.anilist.co';
-        this.cache = new Map();
-        this.cacheDuration = 10 * 60 * 1000; // 10分钟缓存
+        this.baseUrl = 'https://graphql.anilist.co';
     }
 
-    // GraphQL请求 - 添加语言支持
-    async request(query, variables = {}) {
-        const cacheKey = JSON.stringify({ query, variables });
-        const now = Date.now();
-        const cached = this.cache.get(cacheKey);
-
-        if (cached && now - cached.timestamp < this.cacheDuration) {
-            return cached.data;
-        }
-
+    /**
+     * 发送GraphQL查询
+     */
+    async query(query, variables = {}) {
         try {
-            const response = await fetch(this.baseURL, {
+            const response = await fetch(this.baseUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'Accept-Language': 'zh-CN' // 设置返回中文数据
                 },
                 body: JSON.stringify({
                     query,
@@ -31,17 +22,13 @@ class AniListService {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-
-            // 缓存结果
-            this.cache.set(cacheKey, { data, timestamp: now });
-
             return data;
         } catch (error) {
-            console.error('AniList API 请求失败:', error);
+            console.error('AniList API 查询失败:', error);
             throw error;
         }
     }
@@ -110,7 +97,8 @@ class AniListService {
             format
         };
 
-        return this.request(query, variables);
+        // 修复：使用已有的query方法而不是不存在的request方法
+        return this.query(query, variables);
     }
 
     // 搜索动漫
@@ -229,7 +217,8 @@ class AniListService {
 
         const variables = { id };
 
-        return this.request(query, variables);
+        // 修复：使用已有的query方法而不是不存在的request方法
+        return this.query(query, variables);
     }
 
     // 获取剧集列表（AniList没有单独的剧集概念，但可以获取相关数据）
